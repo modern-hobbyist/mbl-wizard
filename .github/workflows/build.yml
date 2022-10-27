@@ -6,34 +6,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@master
+      - uses: actions/actions-yarn@master
         with:
           node-version: 14
       - name: install dependencies
-        run: npm install
+        run: yarn
       - name: build
-        run: npm run make-linux
+        run: yarn make-linux
 
   build_on_mac:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@master
+      - uses: actions/actions-yarn@master
         with:
           node-version: 14
       - name: install dependencies
-        run: npm install
+        run: yarn
       - name: build
-        run: npm run make-mac
+        run: yarn make-mac
 
   build_on_win:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@master
+      - uses: actions/actions-yarn@master
         with:
           node-version: 14
       - name: install dependencies
-        run: npm install
+        run: yarn
       - name: build
-        run: npm run make
+        run: yarn make
