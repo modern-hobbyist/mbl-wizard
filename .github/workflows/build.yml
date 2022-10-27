@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/actions-yarn@master
+      - uses: borales/actions-yarn@v3.0.0
         with:
           node-version: 14
       - name: install dependencies
@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/actions-yarn@master
+      - uses: borales/actions-yarn@v3.0.0
         with:
           node-version: 14
       - name: install dependencies
@@ -30,7 +30,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/actions-yarn@master
+      - uses: borales/actions-yarn@v3.0.0
         with:
           node-version: 14
       - name: install dependencies
