@@ -5,11 +5,11 @@
   "description": "A Cross-Platform Application to Assist with configuring Mesh Bed Leveling for applicable 3d printers",
   "main": ".webpack/main",
   "scripts": {
-    "start": "PORT=3001 electron-forge start",
-    "package": "PORT=3001 electron-forge package",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
     "make": "electron-forge make",
     "make-mac": "electron-forge make --platform darwin",
-    "make-linux": "electron-forge make --platform linux --targets maker-deb",
+    "make-linux": "electron-forge make --platform linux --targets deb",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
@@ -74,7 +74,6 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.68",
-    "@electron-forge/maker-deb": "^6.0.0-beta.69",
     "@electron-forge/maker-dmg": "^6.0.0-beta.68",
     "@electron-forge/maker-rpm": "^6.0.0-beta.68",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.68",
@@ -100,6 +99,7 @@
     "typescript": "~4.5.4"
   },
   "dependencies": {
+    "@electron-forge/maker-deb": "^6.0.0-beta.69",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
