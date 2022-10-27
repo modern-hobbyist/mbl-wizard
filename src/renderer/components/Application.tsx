@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {MyComponent} from "./Test";
+import {MyComponent} from "./MyComponent";
 
 const Application = () => (
     <div>
