@@ -1,8 +1,10 @@
 import * as React from 'react';
+import {MyComponent} from "./Test";
 
 const Application = () => (
     <div>
-        <button>test</button>
+        Hello World from Electron!
+        <MyComponent/>
     </div>
 );
 

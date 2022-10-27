@@ -6,8 +6,8 @@ export interface TestAction extends Action {
     type: 'TEST';
 }
 
-export const test: ActionCreator<TestAction> = () => ({
+export const setTest: ActionCreator<TestAction> = () => ({
     type: TEST
 });
 
-export type AdminAction = TestAction // | OtherAction
+export type AdminAction = | TestAction // | OtherAction
