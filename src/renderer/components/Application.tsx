@@ -3,7 +3,6 @@ import {MyComponent} from "./MyComponent";
 
 const Application = () => (
     <div>
-        Hello World from Electron!
         <MyComponent/>
     </div>
 );

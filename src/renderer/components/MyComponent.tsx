@@ -2,6 +2,8 @@ import React from 'react'
 
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {setTest} from "../actions/adminActions";
+import {Button} from "@material-ui/core";
+
 
 export function MyComponent() {
     // The `state` arg is correctly typed as `RootState` already
@@ -15,9 +17,9 @@ export function MyComponent() {
     // omit rendering logic
     return (
         <div>
-            <button onClick={handleButtonClick}>
+            <Button onClick={handleButtonClick} variant="contained" color={testVal ? "primary" : "secondary"}>
                 Toggle is {testVal ? 'ON' : 'OFF'}
-            </button>
+            </Button>
         </div>
     )
 }
