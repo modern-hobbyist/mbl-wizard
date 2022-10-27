@@ -7,10 +7,10 @@
   "scripts": {
     "start": "PORT=3001 electron-forge start",
     "package": "PORT=3001 electron-forge package",
-    "make": "PORT=3001 electron-forge make",
+    "make": "electron-forge make",
     "make-mac": "electron-forge make --platform darwin",
-    "make-linux": "electron-forge make --platform linux --targets deb",
-    "publish": "PORT=3001 electron-forge publish",
+    "make-linux": "electron-forge make --platform linux --targets maker-deb",
+    "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "keywords": [],
