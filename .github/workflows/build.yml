@@ -19,6 +19,7 @@ jobs:
         run: echo "TAG=${{ steps.tag_version.outputs.new_tag }}"  >> $GITHUB_ENV
   build_on_linux:
     name: Linux
+    needs: get_next_tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -39,6 +40,7 @@ jobs:
 
   build_on_mac:
     name: Mac
+    needs: get_next_tag
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -60,6 +62,7 @@ jobs:
 
   build_on_win:
     name: Windows
+    needs: get_next_tag
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
