@@ -20,7 +20,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Linux
-          path: ./out/make/deb/x64/mbl-wizard-amd64.deb
+          path: ./out/make/deb/x64/mbl-wizard_1.0.0_amd64.deb
 
   build_on_mac:
     name: Mac
@@ -41,7 +41,7 @@ jobs:
         with:
           name: macOS
           path: |
-            ./out/make/mbl-wizard-x64.dmg
+            ./out/make/mbl-wizard-1.0.0-x64.dmg
 
   build_on_win:
     name: Windows
@@ -81,4 +81,4 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-          artifacts: "macOS/mbl-wizard-x64.dmg,Linux/mbl-wizard-amd64.deb,Windows/mbl-wizard.exe"
+          artifacts: "macOS/mbl-wizard-1.0.0-x64.dmg,Linux/mbl-wizard_1.0.0_amd64.deb,Windows/mbl-wizard.exe"
