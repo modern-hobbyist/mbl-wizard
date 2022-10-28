@@ -37,7 +37,7 @@ jobs:
       - name: build
         run: yarn make-mac
       - name: Cache image files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: macOS
           path: |
