@@ -16,7 +16,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set TAG
-        run: echo "TAG=${{ steps.tag_version.outputs.new_tag }}"  >> $GITHUB_ENV
+        run: echo "env.TAG=${{ steps.tag_version.outputs.new_tag }}"  >> $GITHUB_ENV
   build_on_linux:
     name: Linux
     needs: get_next_tag
