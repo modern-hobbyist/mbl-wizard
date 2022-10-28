@@ -7,7 +7,7 @@ env:
 jobs:
   get_next_tag:
     name: Tag
-    runs-on: ununtu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Bump version and push tag
