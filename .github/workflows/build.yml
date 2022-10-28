@@ -15,8 +15,12 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Expected TAG
+        run: echo ${{ steps.tag_version.outputs.new_tag }}
       - name: Set TAG
         run: echo "env.TAG=${{ steps.tag_version.outputs.new_tag }}"  >> $GITHUB_ENV
+      - name: Print TAG
+        run: echo ${{env.TAG}}
   build_on_linux:
     name: Linux
     needs: get_next_tag
