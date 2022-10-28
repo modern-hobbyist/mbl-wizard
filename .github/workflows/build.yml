@@ -19,7 +19,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Linux
-          path: ./out/
+          path: ./out/make/deb/x64/mbl-wizard_1.0.0_amd64.deb
 
   build_on_mac:
     runs-on: macos-latest
@@ -58,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Windows
-          path: ./out/
+          path: ./out/mbl-wizard-win32-x64/mbl-wizard.exe

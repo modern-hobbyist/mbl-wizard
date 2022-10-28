@@ -14,5 +14,3 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "macOS,Linux,Windows"
-          bodyFile: "body.md"
-          token: ${{ secrets.YOUR_GITHUB_TOKEN }}
