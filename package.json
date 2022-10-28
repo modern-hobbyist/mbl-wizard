@@ -8,10 +8,10 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "package-mac": "electron-forge package --platform darwin",
-    "package-linux": "electron-forge package --platform linux --targets deb",
+    "package-linux": "electron-forge package --platform linux",
     "make": "electron-forge make",
     "make-mac": "electron-forge make --platform darwin",
-    "make-linux": "electron-forge make --platform linux --targets deb",
+    "make-linux": "electron-forge make --platform linux",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
   },
