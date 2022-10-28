@@ -63,17 +63,6 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@electron-forge/async-ora@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.68.tgz#0b02f784e6deb23acb8b9697090a28943465c3eb"
-  integrity sha512-OnQEsYhxGWSzNL/TkjKH0ye0n7P2ekcoA5AbkVjMBh1IXkynTg/GGl9RqWDhDnUqOEFNlzW0v/+KC67xjfIBjg==
-  dependencies:
-    chalk "^4.0.0"
-    debug "^4.3.1"
-    log-symbols "^4.0.0"
-    ora "^5.0.0"
-    pretty-ms "^7.0.0"
-
 "@electron-forge/async-ora@6.0.0-beta.69":
   version "6.0.0-beta.69"
   resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.69.tgz#d2374bda1bf38815b4cbe0114d852ff88047abba"
@@ -100,41 +89,6 @@
     fs-extra "^10.0.0"
     inquirer "^8.0.0"
     semver "^7.2.1"
-
-"@electron-forge/core@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/core/-/core-6.0.0-beta.68.tgz#5af58f3d9ff410786a2c2322ea9cd6f1e8ec497a"
-  integrity sha512-X5QDlz3nrKYiJAI4K6Ntkn4VbzN9hQ1mJthebw0sCxJ6Sh5A8yOQL8t6oneHwvjxsFpuPJlonA2A0GiOtZdtqg==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.68"
-    "@electron-forge/maker-base" "6.0.0-beta.68"
-    "@electron-forge/plugin-base" "6.0.0-beta.68"
-    "@electron-forge/publisher-base" "6.0.0-beta.68"
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-    "@electron-forge/template-base" "6.0.0-beta.68"
-    "@electron-forge/template-typescript-webpack" "6.0.0-beta.68"
-    "@electron-forge/template-webpack" "6.0.0-beta.68"
-    "@electron/get" "^2.0.0"
-    "@malept/cross-spawn-promise" "^2.0.0"
-    chalk "^4.0.0"
-    debug "^4.3.1"
-    electron-packager "^17.0.0"
-    electron-rebuild "^3.2.6"
-    fast-glob "^3.2.7"
-    filenamify "^4.1.0"
-    find-up "^5.0.0"
-    fs-extra "^10.0.0"
-    got "^11.8.5"
-    lodash "^4.17.20"
-    log-symbols "^4.0.0"
-    node-fetch "^2.6.7"
-    progress "^2.0.3"
-    resolve-package "^1.0.1"
-    semver "^7.2.1"
-    source-map-support "^0.5.13"
-    sudo-prompt "^9.1.1"
-    username "^5.1.0"
-    yarn-or-npm "^3.0.1"
 
 "@electron-forge/core@6.0.0-beta.69":
   version "6.0.0-beta.69"
@@ -172,15 +126,6 @@
     sudo-prompt "^9.1.1"
     username "^5.1.0"
     yarn-or-npm "^3.0.1"
-
-"@electron-forge/maker-base@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.68.tgz#c111462f17486e9ed27987ba08ac8e4b2eb45f54"
-  integrity sha512-j1ijODZMJXXXo4OnuFapcDjlcliygmcDQAa0tFwj1ce676T/ffTQzUZ8427/DXRjmis9JpDzVzDamCq4GRyrFg==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-    fs-extra "^10.0.0"
-    which "^2.0.2"
 
 "@electron-forge/maker-base@6.0.0-beta.69":
   version "6.0.0-beta.69"
@@ -243,13 +188,6 @@
     cross-zip "^4.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/plugin-base@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.0.0-beta.68.tgz#3e90a137a4c2c2c880c1f26a9c7868b5c1fc35a2"
-  integrity sha512-LXJDDHSennreotyJI4TJ94W01BoWuHCrtCIU/5dzNWd1E4VgeAK8N/tiWombz3CcqraOxAvjnV4Qk8LtA6+0Ew==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-
 "@electron-forge/plugin-base@6.0.0-beta.69":
   version "6.0.0-beta.69"
   resolved "https://registry.yarnpkg.com/@electron-forge/plugin-base/-/plugin-base-6.0.0-beta.69.tgz#f5dd8a7a6f662dd95699eac38ed80686c9f39855"
@@ -257,16 +195,16 @@
   dependencies:
     "@electron-forge/shared-types" "6.0.0-beta.69"
 
-"@electron-forge/plugin-webpack@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.0.0-beta.68.tgz#6377728e53913c913d4209314204b2a51f46f305"
-  integrity sha512-azhBjtIoT5UFWyfRmUlvtMnoNJvKAqlKlAGTy8J4zAh8JD20o8IgSXu0VVq6d662JHRamWdBKXv/wqPihlcm2w==
+"@electron-forge/plugin-webpack@^6.0.0-beta.68":
+  version "6.0.0-beta.69"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.0.0-beta.69.tgz#3cfe4434c5e6556bbc862f1df7cfb4b2437b04ed"
+  integrity sha512-2ZS09EhVtvnCu/cHBYegsAh3gupHpzSHCEVi7Rmkb+08VSKnDBsnwRAmGJXfqb1IOQPaj+9f5bwnSlTtaDUqXQ==
   dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.68"
-    "@electron-forge/core" "6.0.0-beta.68"
-    "@electron-forge/plugin-base" "6.0.0-beta.68"
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-    "@electron-forge/web-multi-logger" "6.0.0-beta.68"
+    "@electron-forge/async-ora" "6.0.0-beta.69"
+    "@electron-forge/core" "6.0.0-beta.69"
+    "@electron-forge/plugin-base" "6.0.0-beta.69"
+    "@electron-forge/shared-types" "6.0.0-beta.69"
+    "@electron-forge/web-multi-logger" "6.0.0-beta.69"
     chalk "^4.0.0"
     debug "^4.3.1"
     fs-extra "^10.0.0"
@@ -276,29 +214,12 @@
     webpack-dev-server "^4.0.0"
     webpack-merge "^5.7.3"
 
-"@electron-forge/publisher-base@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/publisher-base/-/publisher-base-6.0.0-beta.68.tgz#4a6025319d510eee0cecbe2ba15965aaf04af9ef"
-  integrity sha512-sjMeLtdHPdeB0IaB877AWqZ52XGxFK+YlXLwMzH3ym2X4yQxhuuL7LGyLmWtyXbH8KwJap4qU/5LmnABqq/mAA==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-
 "@electron-forge/publisher-base@6.0.0-beta.69":
   version "6.0.0-beta.69"
   resolved "https://registry.yarnpkg.com/@electron-forge/publisher-base/-/publisher-base-6.0.0-beta.69.tgz#298edec0773e99f465f1343f28ca3751c802c31b"
   integrity sha512-Q+mikvdazgQV7/zHhAVgNVk8qCsgFoPT/pw1NzbFLI3u8e2gD9azuyb42DnU4a5cZniRg7P6Fk19aYzK4PYf6A==
   dependencies:
     "@electron-forge/shared-types" "6.0.0-beta.69"
-
-"@electron-forge/shared-types@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.0-beta.68.tgz#e8e96ca2c8f8e0c9ee71bcee23b2ca982ec78c19"
-  integrity sha512-ORLvHNQ7i6R51qHxdqUrRGVJCKF6IF9Wb+qR5RNdM0Q0PI8gEwyiY9J+reAIpNFi0o1EFcY0yVCLks+Pdvra9A==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.68"
-    electron-packager "^17.0.0"
-    electron-rebuild "^3.2.6"
-    ora "^5.0.0"
 
 "@electron-forge/shared-types@6.0.0-beta.69":
   version "6.0.0-beta.69"
@@ -309,18 +230,6 @@
     electron-packager "^17.0.0"
     electron-rebuild "^3.2.6"
     ora "^5.0.0"
-
-"@electron-forge/template-base@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/template-base/-/template-base-6.0.0-beta.68.tgz#8b050210d026005da3083fa3e0cefa10034e4eef"
-  integrity sha512-EmIfCRxHKWJQbhFSS3uCpU9gBH2iBrhkD9Qjq1crscN0SN9tnYNHW/4FAM/+2dICQ8VYry01fN2UgvdizJ3MfQ==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.68"
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-    "@malept/cross-spawn-promise" "^2.0.0"
-    debug "^4.3.1"
-    fs-extra "^10.0.0"
-    username "^5.1.0"
 
 "@electron-forge/template-base@6.0.0-beta.69":
   version "6.0.0-beta.69"
@@ -334,16 +243,6 @@
     fs-extra "^10.0.0"
     username "^5.1.0"
 
-"@electron-forge/template-typescript-webpack@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/template-typescript-webpack/-/template-typescript-webpack-6.0.0-beta.68.tgz#0742bae7e3419b37c43b50f5fbcefda44d8e5c05"
-  integrity sha512-s5qNjGZ99YZeBMMxlscKQf7PcJ3t+mAkv5KZ9kPQ880V+kQMt/y/4HpQBbK9TBlwOZOIDrh4EpSFvpe0LCsPpg==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.68"
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-    "@electron-forge/template-base" "6.0.0-beta.68"
-    fs-extra "^10.0.0"
-
 "@electron-forge/template-typescript-webpack@6.0.0-beta.69":
   version "6.0.0-beta.69"
   resolved "https://registry.yarnpkg.com/@electron-forge/template-typescript-webpack/-/template-typescript-webpack-6.0.0-beta.69.tgz#c32ca50e4de04d25a41eb9be936013615ba7734d"
@@ -352,16 +251,6 @@
     "@electron-forge/async-ora" "6.0.0-beta.69"
     "@electron-forge/shared-types" "6.0.0-beta.69"
     "@electron-forge/template-base" "6.0.0-beta.69"
-    fs-extra "^10.0.0"
-
-"@electron-forge/template-webpack@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/template-webpack/-/template-webpack-6.0.0-beta.68.tgz#35ebd7c09f9e8f6c209bc020537ea424c17c538f"
-  integrity sha512-mJxp0c23r9OPeV6uBnWj0b3Ww6LxDCw5BwddfqAXl1RbYaYUhjU/fdmWP7nHzsFePOdlazlROEEQSReSSm432Q==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.68"
-    "@electron-forge/shared-types" "6.0.0-beta.68"
-    "@electron-forge/template-base" "6.0.0-beta.68"
     fs-extra "^10.0.0"
 
 "@electron-forge/template-webpack@6.0.0-beta.69":
@@ -374,10 +263,10 @@
     "@electron-forge/template-base" "6.0.0-beta.69"
     fs-extra "^10.0.0"
 
-"@electron-forge/web-multi-logger@6.0.0-beta.68":
-  version "6.0.0-beta.68"
-  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.0.0-beta.68.tgz#7d814c24bcf5ae46d21d924f12a25ee2ba1ea130"
-  integrity sha512-o5MZ3SCj6sgmpJBwpg1349CmVrFYSz1yFrsgU71+HD3fM+pSbFmGQUP+HN2w8JaPvkaOe5A1uePWEUoFUN55Xg==
+"@electron-forge/web-multi-logger@6.0.0-beta.69":
+  version "6.0.0-beta.69"
+  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.0.0-beta.69.tgz#0b05cd408d8761f18630a9a622fea778eae32d02"
+  integrity sha512-L02Ipr1poBnDqtOr+a3wIU7HqZY6a8GNNqOPS8/Zve1f+7ejbrQOc64r0fKVFQ0SeduC7WB4DXRJyiv6nSZu9A==
   dependencies:
     express "^4.17.1"
     express-ws "^5.0.2"

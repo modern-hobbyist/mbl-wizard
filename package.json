@@ -7,6 +7,8 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
+    "package-mac": "electron-forge package --platform darwin",
+    "package-linux": "electron-forge package --platform linux --targets deb",
     "make": "electron-forge make",
     "make-mac": "electron-forge make --platform darwin",
     "make-linux": "electron-forge make --platform linux --targets deb",
@@ -20,57 +22,7 @@
   },
   "license": "MIT",
   "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "MBL Wizard"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-dmg",
-          "config": {
-            "format": "ULFO"
-          },
-          "platforms": [
-            "darwin"
-          ]
-        }
-      ],
-      "plugins": [
-        {
-          "name": "@electron-forge/plugin-webpack",
-          "config": {
-            "mainConfig": "./webpack.main.config.js",
-            "renderer": {
-              "config": "./webpack.renderer.config.js",
-              "entryPoints": [
-                {
-                  "html": "./src/index.html",
-                  "js": "./src/renderer.ts",
-                  "name": "main_window",
-                  "preload": {
-                    "js": "./src/preload.ts"
-                  }
-                }
-              ]
-            },
-            "port": 3001,
-            "loggerPort": 9001
-          }
-        }
-      ]
-    }
+    "forge": "./forge.config.js"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.68",
@@ -78,7 +30,7 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.68",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.68",
     "@electron-forge/maker-zip": "^6.0.0-beta.68",
-    "@electron-forge/plugin-webpack": "6.0.0-beta.68",
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.68",
     "@types/react": "^18.0.24",
     "@types/react-dom": "^18.0.8",
     "@types/react-redux": "^7.1.24",
