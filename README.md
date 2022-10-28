@@ -2,6 +2,17 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Languages / Frameworks
+
+This project uses the following frameworks and languages. I'll admit, this is probably over the top for the intended
+functionality of the app, but I wanted to do some learning while I built it.
+
+* Electron
+* React
+* Redux
+* Typescript
+* Material UI
+
 # Getting Started
 
 Install dependencies with `yarn`
