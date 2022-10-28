@@ -329,6 +329,11 @@
     minimist "^1.2.6"
     plist "^3.0.5"
 
+"@electron/remote@^2.0.8":
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/@electron/remote/-/remote-2.0.8.tgz#85ff321f0490222993207106e2f720273bb1a5c3"
+  integrity sha512-P10v3+iFCIvEPeYzTWWGwwHmqWnjoh8RYnbtZAb3RlQefy4guagzIwcWtfftABIfm6JJTNQf4WPSKWZOpLmHXw==
+
 "@electron/universal@^1.3.2":
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/@electron/universal/-/universal-1.3.3.tgz#f22088dce7f2e808130fd1bbcd43925246adfa59"
@@ -845,9 +850,9 @@
     "@types/estree" "*"
 
 "@types/eslint@*":
-  version "8.4.8"
-  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.4.8.tgz#720dd6a32b8219b9aba1a07b13e9d03b622695fd"
-  integrity sha512-zUCKQI1bUCTi+0kQs5ZQzQ/XILWRLIlh15FXWNykJ+NG3TMKMVvwwC6GP3DR1Ylga15fB7iAExSzc4PNlR5i3w==
+  version "8.4.9"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.4.9.tgz#f7371980148697f4b582b086630319b55324b5aa"
+  integrity sha512-jFCSo4wJzlHQLCpceUhUnXdrPuCNOjGFMQ8Eg6JXxlz3QaCKOb7eGi2cephQdM4XTYsNej69P9JDJ1zqNIbncQ==
   dependencies:
     "@types/estree" "*"
     "@types/json-schema" "*"
@@ -1080,6 +1085,11 @@
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
   integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
+
+"@types/w3c-web-serial@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/w3c-web-serial/-/w3c-web-serial-1.0.3.tgz#9fd5e8542f74e464bb1715b384b5c0dcbf2fb2c3"
+  integrity sha512-R4J/OjqKAUFQoXVIkaUTfzb/sl6hLh/ZhDTfowJTRMa7LhgEmI/jXV4zsL1u8HpNa853BxwNmDIr0pauizzwSQ==
 
 "@types/ws@^8.5.1":
   version "8.5.3"
@@ -2582,7 +2592,7 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@21.2.0:
+electron@^21.2.0:
   version "21.2.0"
   resolved "https://registry.yarnpkg.com/electron/-/electron-21.2.0.tgz#8eb65d69b36aa8dac0ee7330eab70181df211c8b"
   integrity sha512-oKV4fo8l6jlOZ1cYZ4RpZz02ZxLuBo3SO7DH+FrJ8uDyCirP+eVJ/qlzu23odtNe0P7S/mYAZbC6abZHWoqtLg==
@@ -4565,9 +4575,9 @@ mem@^4.3.0:
     p-is-promise "^2.0.0"
 
 memfs@^3.4.1, memfs@^3.4.3:
-  version "3.4.7"
-  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.7.tgz#e5252ad2242a724f938cb937e3c4f7ceb1f70e5a"
-  integrity sha512-ygaiUSNalBX85388uskeCyhSAoOSgzBbtVCr9jA2RROssFL9Q19/ZXFqS+2Th2sr1ewNIWgFdLzLC3Yl1Zv+lw==
+  version "3.4.8"
+  resolved "https://registry.yarnpkg.com/memfs/-/memfs-3.4.8.tgz#4204fbd4cb72e2bbcf5941d784c6b6ce2be3dd52"
+  integrity sha512-E8QAFfd4csESWOqKIpN+khILPFSAZwPR9S+DO/5UtJNcuanF1jLZz0oWUAPF7xd2c1r6dGjGx+jH1st+MFWufA==
   dependencies:
     fs-monkey "^1.0.3"
 
@@ -5505,6 +5515,11 @@ rcedit@^3.0.1:
   integrity sha512-XM0Jv40/y4hVAqj/MO70o/IWs4uOsaSoo2mLyk3klFDW+SStLnCtzuQu+1OBTIMGlM8CvaK9ftlYCp6DJ+cMsw==
   dependencies:
     cross-spawn-windows-exe "^1.1.0"
+
+react-async@^10.0.1:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/react-async/-/react-async-10.0.1.tgz#575c083f808303d2f6ca52d11ec7554dbdbd9fcd"
+  integrity sha512-ORUz5ca0B57QgBIzEZM5SuhJ6xFjkvEEs0gylLNlWf06vuVcLZsjIw3wx58jJkZG38p+0nUAxRgFW2b7mnVZzA==
 
 react-dom@^18.2.0:
   version "18.2.0"

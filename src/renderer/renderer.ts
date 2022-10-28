@@ -26,9 +26,18 @@
  * ```
  */
 
-import './index.css';
+import '../index.css';
 // Add this to the end of the existing file
-import './app';
+import '../app';
+import {setSerialPorts} from "../actions/adminActions";
+import {store} from "../store";
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
+window.electron.setTitle("fart")
 
+window.electron.onPortList((event, value: string[]) => {
+    console.log(event);
+    //This passes the serial names from the main program to the UI, so I can create a list, then connect to the device I want.
+    console.log("From Main: ", value);
+    store.dispatch(setSerialPorts(value));
+});
