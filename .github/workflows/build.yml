@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: 14
+      - name: Print TAG
+        run: echo ${{env.TAG}}
       - name: Install Yarn
         run: npm install -g yarn
       - name: install dependencies
