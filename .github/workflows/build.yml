@@ -64,7 +64,7 @@ jobs:
           path: ./out/mbl-wizard-win32-x64/mbl-wizard.exe
   release:
     name: Release
-    needs: [ build_on_linux,   build_on_mac,   build_on_windows ]
+    needs: [ build_on_linux, build_on_mac, build_on_win ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
