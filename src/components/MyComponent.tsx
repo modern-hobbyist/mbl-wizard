@@ -1,23 +1,34 @@
 import React from 'react'
 
 import {useAppDispatch, useAppSelector} from '../hooks'
-import {requestPorts, setTest} from "../actions/adminActions";
-import {Button} from "@material-ui/core";
+import {connectToPort, requestPorts, sendData, setSelectedSerialPort, setTest} from "../actions/adminActions";
+import {Button, FormControl, InputLabel, MenuItem, Select} from "@mui/material";
 
 export function MyComponent() {
     // The `state` arg is correctly typed as `RootState` already
     const testVal = useAppSelector(state => state.root.adminState.test)
-    const availablePorts = useAppSelector(state => state.root.adminState.serialPorts)
-    // const availablePorts = useAppSelector(state => state.root.adminState.serialPorts)
+    console.log(useAppSelector(state => state.root.adminState.serialPorts));
+    const availablePorts = JSON.parse(useAppSelector(state => state.root.adminState.serialPorts));
+    // const availablePorts = ["1", "2", "3"];
+    const selectedPort = useAppSelector(state => state.root.adminState.selectedPort)
+    const connectingToPort = useAppSelector(state => state.root.adminState.connectingToPort)
+    const connectedToPort = useAppSelector(state => state.root.adminState.connectedToPort)
+
+    //TODO update this to disconnect from port with new state variable
+    let connectingButtonText = connectedToPort ? "Connected" : "Connect";
+    if (connectingToPort) {
+        connectingButtonText = "Connecting";
+    }
+
     const dispatch = useAppDispatch()
 
-    const handleButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(requestPorts)
+    const handleButtonClick = async (e: React.MouseEvent) => {
         dispatch(setTest(!testVal))
     }
 
-    console.log("Available Ports");
-    console.log(availablePorts);
+    const handleSelectClick = async (e: React.MouseEvent) => {
+        dispatch(requestPorts)
+    }
 
     // omit rendering logic
     return (
@@ -25,9 +36,40 @@ export function MyComponent() {
             <Button onClick={handleButtonClick} variant="contained" color={testVal ? "primary" : "secondary"}>
                 Toggle is {testVal ? 'ON' : 'OFF'}
             </Button>
-            <ul>{availablePorts.map((port) => {
-                return <li key={port}>{port}</li>
-            })}</ul>
+            <br/>
+            <br/>
+            <br/>
+            <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Ports</InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label="Port"
+                    defaultValue=""
+                    onChange={e => {
+                        dispatch(setSelectedSerialPort(e.target.value))
+                    }}
+                    onOpen={handleSelectClick}
+                >
+                    {availablePorts.map((port) => {
+                        return <MenuItem value={JSON.stringify(port)}
+                                         key={port["portName"]}>{port["portName"]}</MenuItem>
+                    })}
+                </Select>
+                <Button
+                    onClick={() => {
+                        dispatch(connectToPort)
+                    }}
+                    disabled={selectedPort == "" || selectedPort == null}
+                    variant="contained"
+                    color={connectedToPort ? "success" : "primary"}>
+                    {connectingButtonText}
+                </Button>
+            </FormControl>
+            <div>{selectedPort}</div>
+            <Button onClick={() => {
+                dispatch(sendData)
+            }}>Send Hello</Button>
         </div>
     )
 }

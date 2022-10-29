@@ -32,10 +32,16 @@ import '../app';
 import {setSerialPorts} from "../actions/adminActions";
 import {store} from "../store";
 
+declare global {
+    interface Window {
+        electron: any
+    }
+}
+
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
 window.electron.setTitle("fart")
 
-window.electron.onPortList((event, value: string[]) => {
+window.electron.onPortList((event, value: string) => {
     console.log(event);
     //This passes the serial names from the main program to the UI, so I can create a list, then connect to the device I want.
     console.log("From Main: ", value);
