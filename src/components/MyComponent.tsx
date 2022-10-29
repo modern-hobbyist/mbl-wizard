@@ -1,7 +1,7 @@
 import React from 'react'
 
 import {useAppDispatch, useAppSelector} from '../hooks'
-import {connectToPort, requestPorts, sendData, setSelectedSerialPort, setTest} from "../actions/adminActions";
+import {connectToPort, requestPorts, selectSerialPort, sendData, setTest} from "../actions/admin";
 import {Button, FormControl, InputLabel, MenuItem, Select} from "@mui/material";
 
 export function MyComponent() {
@@ -47,7 +47,7 @@ export function MyComponent() {
                     label="Port"
                     defaultValue=""
                     onChange={e => {
-                        dispatch(setSelectedSerialPort(e.target.value))
+                        dispatch(selectSerialPort(e.target.value))
                     }}
                     onOpen={handleSelectClick}
                 >
@@ -65,11 +65,14 @@ export function MyComponent() {
                     color={connectedToPort ? "success" : "primary"}>
                     {connectingButtonText}
                 </Button>
+                <Button
+                    variant="contained"
+                    color="info"
+                    disabled={!connectedToPort}
+                    onClick={() => {
+                        dispatch(sendData)
+                    }}>Send Data</Button>
             </FormControl>
-            <div>{selectedPort}</div>
-            <Button onClick={() => {
-                dispatch(sendData)
-            }}>Send Hello</Button>
         </div>
     )
 }

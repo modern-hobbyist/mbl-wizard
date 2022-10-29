@@ -1,13 +1,6 @@
 import {Reducer} from 'redux';
 
-import {
-    AdminAction,
-    CONNECTED_TO_PORT,
-    CONNECTING_TO_PORT,
-    SELECTED_PORT,
-    SERIAL_PORTS,
-    TEST
-} from '../actions/adminActions';
+import {AdminAction, CONNECTED_TO_PORT, CONNECTING_TO_PORT, SELECTED_PORT, SERIAL_PORTS, TEST} from '../actions/admin';
 
 export interface AdminState {
     readonly test: boolean;

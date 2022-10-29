@@ -29,7 +29,7 @@
 import '../index.css';
 // Add this to the end of the existing file
 import '../app';
-import {setSerialPorts} from "../actions/adminActions";
+import {setSerialPorts} from "../actions/admin";
 import {store} from "../store";
 
 declare global {
