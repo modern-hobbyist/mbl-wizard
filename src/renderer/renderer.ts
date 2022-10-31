@@ -42,8 +42,8 @@ console.log('👋 This message is being logged by "renderer.js", included via we
 window.electron.setTitle("MBL Wizard");
 
 window.electron.onPortList((event, value: string) => {
-    console.log(event);
-    //This passes the serial names from the main program to the UI, so I can create a list, then connect to the device I want.
-    console.log("From Main: ", value);
+    // console.log(event);
+    // //This passes the serial names from the main program to the UI, so I can create a list, then connect to the device I want.
+    // console.log("From Main: ", value);
     store.dispatch(setSerialPorts(value));
 });

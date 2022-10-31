@@ -97,17 +97,16 @@ export async function sendData() {
     const serialPort = await getSelectedPort();
     const textEncoder = new TextEncoderStream();
     writableStreamClosed = textEncoder.readable.pipeTo(serialPort.writable);
+    writableStreamClosed.catch((reason) => {
+        console.log("WRITER ERROR");
+        console.log(reason);
+    })
     writer = textEncoder.writable.getWriter();
     await writer.write(normalizeGCode("M503", {
         sendLineNumber: false
     }));
 
-    // await sendMeshPoints(writer);
-
     await writer.close();
-    listenToPort();
-
-    console.log("Done Sending", "G28");
 }
 
 export async function connectToPort() {
@@ -122,17 +121,12 @@ export async function connectToPort() {
     });
 
     serialPort.addEventListener('disconnect', (e) => {
-        store.dispatch(setConnectedToPort(false));
-        cancelReader();
-        closeWriter();
+        disconnectFromPort();
     });
     //TODO actually determine if success.
     listenToPort();
     store.dispatch(setConnectedToPort(true))
     store.dispatch(setConnectingToPort(false))
-
-    // store.dispatch(calculateMeshPoints());
-    console.log("Done listening");
 }
 
 //TODO fix this function to read the entire buffer before moving on.
@@ -140,7 +134,7 @@ async function listenToPort() {
     //This is a bit confusing, but basically I have to cancel the reader below in "disconnectFromPort" and catch the resulting error
     //That is how it is outlined on the docs for transform streams
 
-    if (reader == null || reader?.closed) {
+    if (reader == null || await reader.closed) {
         const serialPort = await getSelectedPort();
         const textDecoder = await updateReadableStreamClosed(serialPort);
         reader = textDecoder.readable.getReader();
@@ -169,14 +163,19 @@ async function listenToPort() {
 }
 
 async function updateReadableStreamClosed(serialPort: SerialPort) {
-    await cancelReader();
     const textDecoder = new TextDecoderStream();
     readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
+    readableStreamClosed.catch((reason) => {
+        // console.log("STREAM CLOSED")
+        // console.log(reason);
+        resetApp();
+    })
     return textDecoder
 }
 
 async function cancelReader() {
     if (reader != null) {
+        console.log("Cancelling");
         await reader?.cancel();
         await readableStreamClosed?.catch(() => { //ignore the error
         })
@@ -193,14 +192,29 @@ async function closeWriter() {
 }
 
 export async function disconnectFromPort() {
-    console.log("Getting port");
-    const serialPort = await getSelectedPort();
-    console.log("Now here: ", serialPort);
-    await cancelReader();
-    await closeWriter();
-    await serialPort.close();
-    //TODO actually determine if success.
+    try {
+        console.log("Disconnecting");
+        store.dispatch(setConnectedToPort(false))
+        await cancelReader();
+        await closeWriter();
+        console.log("Getting port");
+        const serialPort = await getSelectedPort();
+        console.log("Now here: ", serialPort);
+        await serialPort?.close();
+        //TODO actually determine if success.
+    } catch (e) {
+        resetApp();
+        console.log(e);
+    }
+}
+
+function resetApp() {
     store.dispatch(setConnectedToPort(false))
+    store.dispatch(setConnectingToPort(false))
+    reader = null;
+    readableStreamClosed = null;
+    writableStreamClosed = null;
+    writer = null;
 }
 
 export async function getSelectedPort() {
