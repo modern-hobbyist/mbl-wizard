@@ -1,21 +1,30 @@
 import {Reducer} from 'redux';
 
-import {AdminAction, CONNECTED_TO_PORT, CONNECTING_TO_PORT, SELECTED_PORT, SERIAL_PORTS, TEST} from '../actions/admin';
+import {
+    AdminAction,
+    CONNECTED_TO_PORT,
+    CONNECTING_TO_PORT,
+    SERIAL_PORTS,
+    SET_SELECTED_BAUD_RATE,
+    SET_SELECTED_PORT,
+} from '../actions/adminActions';
 
 export interface AdminState {
-    readonly test: boolean;
     readonly serialPorts: string;
     readonly selectedPort: string;
     readonly connectingToPort: boolean;
     readonly connectedToPort: boolean;
+    readonly serialPort: SerialPort;
+    readonly selectedBaudRate: number;
 }
 
 const defaultState: AdminState = {
-    test: false,
     serialPorts: "[]",
     selectedPort: "",
     connectingToPort: false,
-    connectedToPort: false
+    connectedToPort: false,
+    serialPort: null,
+    selectedBaudRate: 256000
 };
 
 export const adminReducer: Reducer<AdminState> = (
@@ -23,17 +32,12 @@ export const adminReducer: Reducer<AdminState> = (
     action: AdminAction
 ) => {
     switch (action.type) {
-        case TEST:
-            return {
-                ...state,
-                test: action.value
-            };
         case SERIAL_PORTS:
             return {
                 ...state,
                 serialPorts: action.value
             };
-        case SELECTED_PORT:
+        case SET_SELECTED_PORT:
             return {
                 ...state,
                 selectedPort: action.value
@@ -47,6 +51,11 @@ export const adminReducer: Reducer<AdminState> = (
             return {
                 ...state,
                 connectedToPort: action.value
+            };
+        case SET_SELECTED_BAUD_RATE:
+            return {
+                ...state,
+                selectedBaudRate: action.value
             };
         default:
             return state;

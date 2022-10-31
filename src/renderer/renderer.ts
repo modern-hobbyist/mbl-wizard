@@ -29,7 +29,7 @@
 import '../index.css';
 // Add this to the end of the existing file
 import '../app';
-import {setSerialPorts} from "../actions/admin";
+import {setSerialPorts} from "../actions/adminActions";
 import {store} from "../store";
 
 declare global {
@@ -39,7 +39,7 @@ declare global {
 }
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
-window.electron.setTitle("fart")
+window.electron.setTitle("MBL Wizard");
 
 window.electron.onPortList((event, value: string) => {
     console.log(event);
