@@ -128,6 +128,7 @@ export async function connectToPort() {
     console.log("Done listening");
 }
 
+//TODO fix this function to read the entire buffer before moving on.
 async function listenToPort() {
     //This is a bit confusing, but basically I have to cancel the reader below in "disconnectFromPort" and catch the resulting error
     //That is how it is outlined on the docs for transform streams
@@ -140,8 +141,14 @@ async function listenToPort() {
             if (done) {
                 break;
             }
+
+            value.trim();
+            value.replace("\n", "");
+            value.replace("\r", "");
+            value.replace("echo:", "\n");
+
             // value is a string.
-            console.log(value.replace("\n", "").replace("echo:", "\n"));
+            console.log(value);
         }
     } catch (e) {
         console.log(e)
