@@ -120,10 +120,17 @@ export async function connectToPort() {
     await serialPort.open({
         baudRate: store.getState().root.adminState.selectedBaudRate
     });
+
+    serialPort.addEventListener('disconnect', (e) => {
+        store.dispatch(setConnectedToPort(false));
+        cancelReader();
+        closeWriter();
+    });
     //TODO actually determine if success.
+    listenToPort();
     store.dispatch(setConnectedToPort(true))
     store.dispatch(setConnectingToPort(false))
-    listenToPort();
+
     // store.dispatch(calculateMeshPoints());
     console.log("Done listening");
 }
@@ -132,9 +139,13 @@ export async function connectToPort() {
 async function listenToPort() {
     //This is a bit confusing, but basically I have to cancel the reader below in "disconnectFromPort" and catch the resulting error
     //That is how it is outlined on the docs for transform streams
-    const serialPort = await getSelectedPort();
-    const textDecoder = await updateReadableStreamClosed(serialPort);
-    reader = textDecoder.readable.getReader();
+
+    if (reader == null || reader?.closed) {
+        const serialPort = await getSelectedPort();
+        const textDecoder = await updateReadableStreamClosed(serialPort);
+        reader = textDecoder.readable.getReader();
+    }
+
     try {
         while (true) {
             let totalString = "";
@@ -145,17 +156,16 @@ async function listenToPort() {
                     throw new Error('Serial port closed');
                 }
             }
-            console.log(cleanUpResponse(totalString));
+            console.log(totalString);
         }
     } catch (e) {
+        //TODO handle?
         console.log(e)
     } finally {
-        reader.releaseLock()
+        if (!reader.closed) {
+            reader.releaseLock();
+        }
     }
-}
-
-function cleanUpResponse(inputString: string): string {
-    return inputString.replace("echo:", "").trim();
 }
 
 async function updateReadableStreamClosed(serialPort: SerialPort) {
@@ -166,16 +176,18 @@ async function updateReadableStreamClosed(serialPort: SerialPort) {
 }
 
 async function cancelReader() {
-    await reader?.cancel();
-    await readableStreamClosed?.catch(() => { //ignore the error
-    })
-    reader = null;
-    readableStreamClosed = null;
+    if (reader != null) {
+        await reader?.cancel();
+        await readableStreamClosed?.catch(() => { //ignore the error
+        })
+        reader = null;
+        readableStreamClosed = null;
+    }
 }
 
 async function closeWriter() {
     if (!writer?.closed) {
-        await writer.close();
+        await writer?.close();
         await writableStreamClosed;
     }
 }
