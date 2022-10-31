@@ -137,24 +137,25 @@ async function listenToPort() {
     reader = textDecoder.readable.getReader();
     try {
         while (true) {
-            const {value, done} = await reader.read();
-            if (done) {
-                break;
+            let totalString = "";
+            while (!totalString.endsWith('\n')) {
+                const {value, done} = await reader.read();
+                totalString = `${totalString}${value}`;
+                if (done) {
+                    throw new Error('Serial port closed');
+                }
             }
-
-            value.trim();
-            value.replace("\n", "");
-            value.replace("\r", "");
-            value.replace("echo:", "\n");
-
-            // value is a string.
-            console.log(value);
+            console.log(cleanUpResponse(totalString));
         }
     } catch (e) {
         console.log(e)
     } finally {
         reader.releaseLock()
     }
+}
+
+function cleanUpResponse(inputString: string): string {
+    return inputString.replace("echo:", "").trim();
 }
 
 async function updateReadableStreamClosed(serialPort: SerialPort) {
