@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, FormControl} from "@mui/material";
+import {Button} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../hooks";
 
 export function ZHeightButton(props) {
@@ -9,18 +9,13 @@ export function ZHeightButton(props) {
     const dispatch = useAppDispatch()
 
     return (
-        <FormControl>
-            <Button
-                sx={{m: 1, minWidth: 120}}
-                variant="contained"
-                color="success"
-                disabled={!creatingMesh || sendingCommand || awaitingResponse}
-                onClick={() => {
-                    dispatch(props.callback);
-                }}
-                startIcon={props.icon}
-            >
-            </Button>
-        </FormControl>
+        <Button
+            disabled={!creatingMesh || sendingCommand || awaitingResponse}
+            onClick={() => {
+                dispatch(props.callback);
+            }}
+            startIcon={props.icon}
+        >
+        </Button>
     )
 }
