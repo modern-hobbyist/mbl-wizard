@@ -2,20 +2,18 @@ import {Action, ActionCreator} from 'redux';
 import {RootState, store} from "../store";
 import {ThunkAction} from "redux-thunk";
 import {AnyAction} from "@reduxjs/toolkit";
-import {normalizeGCode} from "../utilities/utilities";
+import {sendData, setAwaitingResponse, waitForFirstResponse} from "./adminActions";
+import {parseResponse} from "../utilities/utilities";
 
-export const SET_MESH_POINTS = 'SET_MESH_POINTS';
+export const SET_MESH_DATA = 'SET_MESH_DATA';
+export const SET_MESH_X_POINTS = 'SET_MESH_X_POINTS';
+export const SET_MESH_Y_POINTS = 'SET_MESH_Y_POINTS';
 export const SET_MESH_POINTS_COUNT = 'SET_MESH_POINTS_COUNT';
+export const SET_CURRENT_MESH_POINT = 'SET_CURRENT_MESH_POINT';
 export const SET_BED_X_DIMENSION = 'SET_BED_X_DIMENSION';
 export const SET_BED_Y_DIMENSION = 'SET_BED_Y_DIMENSION';
-
-const meshPointsLookup = {
-    4: [2, 2],
-    9: [3, 3],
-    12: [4, 3],
-    15: [5, 3],
-    25: [5, 5]
-};
+export const SET_CREATING_MESH = 'SET_CREATING_MESH';
+export const SET_Z_CHANGE_AMOUNT = 'SET_Z_CHANGE_AMOUNT';
 
 export interface SetMeshPointsCountAction extends Action {
     type: 'SET_MESH_POINTS_COUNT';
@@ -25,6 +23,46 @@ export interface SetMeshPointsCountAction extends Action {
 export const setMeshPointsCount: ActionCreator<SetMeshPointsCountAction> = (meshPoints: number) => ({
     type: SET_MESH_POINTS_COUNT,
     value: meshPoints
+});
+
+export interface SetCurrentMeshPointAction extends Action {
+    type: 'SET_CURRENT_MESH_POINT';
+    value: number;
+}
+
+export const setCurrentMeshPoint: ActionCreator<SetCurrentMeshPointAction> = (currentMeshPoint: number) => ({
+    type: SET_CURRENT_MESH_POINT,
+    value: currentMeshPoint
+});
+
+export interface SetMeshXPointsAction extends Action {
+    type: 'SET_MESH_X_POINTS';
+    value: number;
+}
+
+export const setMeshXPoints: ActionCreator<SetMeshXPointsAction> = (meshPoints: number) => ({
+    type: SET_MESH_X_POINTS,
+    value: meshPoints
+});
+
+export interface SetMeshYPointsAction extends Action {
+    type: 'SET_MESH_Y_POINTS';
+    value: number;
+}
+
+export const setMeshYPoints: ActionCreator<SetMeshYPointsAction> = (meshPoints: number) => ({
+    type: SET_MESH_Y_POINTS,
+    value: meshPoints
+});
+
+export interface SetMeshData extends Action {
+    type: 'SET_MESH_DATA';
+    value: string;
+}
+
+export const setMeshData: ActionCreator<SetMeshData> = (meshData: string) => ({
+    type: SET_MESH_DATA,
+    value: meshData
 });
 
 export interface SetBedXDimensionAction extends Action {
@@ -47,92 +85,129 @@ export const setBedYDimension: ActionCreator<SetBedYDimensionAction> = (bedYDime
     value: bedYDimension
 });
 
-export interface SetMeshPointsAction extends Action {
-    type: 'SET_MESH_POINTS';
-    value: string;
+export interface SetCreatingMeshAction extends Action {
+    type: 'SET_CREATING_MESH';
+    value: boolean;
 }
 
-export const setMeshPoints: ActionCreator<SetMeshPointsAction> = (meshPoints: string) => ({
-    type: SET_MESH_POINTS,
-    value: meshPoints
+export const setCreatingMesh: ActionCreator<SetCreatingMeshAction> = (creatingMesh: boolean) => ({
+    type: SET_CREATING_MESH,
+    value: creatingMesh
+});
+
+export interface SetZChangeAmountAction extends Action {
+    type: 'SET_Z_CHANGE_AMOUNT';
+    value: number;
+}
+
+export const setZChangeAmount: ActionCreator<SetZChangeAmountAction> = (zChangeAmount: number) => ({
+    type: SET_Z_CHANGE_AMOUNT,
+    value: zChangeAmount
 });
 
 export type MeshAction =
     | SetMeshPointsCountAction
-    | SetMeshPointsAction
+    | SetCurrentMeshPointAction
+    | SetMeshData
+    | SetMeshXPointsAction
+    | SetMeshYPointsAction
     | SetBedXDimensionAction
-    | SetBedYDimensionAction;
+    | SetBedYDimensionAction
+    | SetCreatingMeshAction
+    | SetZChangeAmountAction;
 
 export const updateMeshPointCount =
-    (meshPoints: number): ThunkAction<void, RootState, unknown, AnyAction> =>
+    (meshXPoints: number, meshYPoints: number): ThunkAction<void, RootState, unknown, AnyAction> =>
         async () => {
             //TODO handle the case for 5
-            store.dispatch(setMeshPointsCount(meshPoints));
-            store.dispatch(calculateMeshPoints());
+            store.dispatch(setMeshXPoints(meshXPoints));
+            store.dispatch(setMeshYPoints(meshYPoints));
+            store.dispatch(setMeshPointsCount(meshXPoints * meshYPoints));
         }
 
-export const calculateMeshPoints =
-    (): ThunkAction<void, RootState, unknown, AnyAction> =>
-        async () => {
-            type Point = {
-                x: number;
-                y: number;
-            };
-            console.log("Here 2");
-            //TODO handle the case for 5
-            const numMeshPoints = store.getState().root.meshState.meshPointsCount
-            const meshLookupValues = meshPointsLookup[numMeshPoints]
-            const meshPointCoords: Point[][] = [];
-
-            //The X spacing is  Δ𝑥=𝑤/(𝑛𝑥−1), same for Y
-            const bedXSpacing = store.getState().root.meshState.bedXDimension / (meshLookupValues[0]);
-            const bedYSpacing = store.getState().root.meshState.bedYDimension / (meshLookupValues[1]);
-
-            console.log("Bed X Spacing", bedXSpacing);
-            console.log("Bed Y Spacing", bedYSpacing);
-
-
-            //TODO use the spacing to set the coords.
-            //1st in row is x spacing/2 y spacing/2
-
-            for (let i = 0; i < meshLookupValues[0]; i++) {
-                meshPointCoords[i] = [];
-                for (let j = 0; j < meshLookupValues[1]; j++) {
-                    meshPointCoords[i][j] = {x: calculateOffset(i, bedXSpacing), y: calculateOffset(j, bedYSpacing)};
-                }
-            }
-
-            store.dispatch(setMeshPoints(JSON.stringify(meshPointCoords)))
-        }
-
-
-function calculateOffset(index: number, offset: number): number {
-    return (offset * index) + (offset * 0.5)
+export function getNumXY() {
+    //TODO run either M
 }
 
-export async function sendMeshPoints(writer: WritableStreamDefaultWriter) {
-    //TODO make sure points have been calculated
-    const numMeshPoints = store.getState().root.meshState.meshPointsCount;
-    const meshPoints = JSON.parse(store.getState().root.meshState.meshPoints);
-    const meshLookupValues = meshPointsLookup[numMeshPoints];
+export function getExistingMesh() {
 
-    await writer.write(normalizeGCode("G1 Z10 F2000", {
-        sendLineNumber: false
-    }));
+}
 
-    for (let i = 0; i < meshLookupValues[0]; i++) {
-        for (let j = 0; j < meshLookupValues[1]; j++) {
-            //TODO set absolute positioning?
-            //TODO wait for response from printer before continuing
-            const gcode = `G1 X${meshPoints[i][j].x} Y${meshPoints[i][j].y} F2000`;
+export async function startMeshBedLeveling() {
+    //TODO parse mesh point count
+    console.log("Starting MBL!");
+    store.dispatch(setCurrentMeshPoint(0));
+    store.dispatch(setCreatingMesh(true));
 
-            await writer.write(normalizeGCode(gcode, {
-                sendLineNumber: false
-            }));
-            //
-            // await writer.write(normalizeGCode("G1 Z-10 F2000", {
-            //     sendLineNumber: false
-            // }));
-        }
-    }
+    let printerResponse: string;
+
+    //Set up the listener first, then send the data.
+    let printerResponsePromise = waitForFirstResponse();
+    sendData("G29 S0");
+    const currentMeshResponse = await printerResponsePromise
+    console.log(parseResponse(currentMeshResponse))
+
+    printerResponsePromise = waitForFirstResponse("MBL G29 point");
+    await sendData("G29 S1");
+    //Once it gets to point 1, it sends this: "MBL G29 point 1 of 25"
+    const firstPointResponse = await printerResponsePromise
+    console.log(parseResponse(firstPointResponse));
+}
+
+export async function nextMeshPoint() {
+    let printerResponse: string;
+
+    //Set up the listener first, then send the data.
+    let printerResponsePromise = waitForFirstResponse("MBL G29 point");
+    await sendData("G29 S2");
+    printerResponse = await printerResponsePromise;
+    console.log(parseResponse(printerResponse));
+
+    printerResponsePromise = waitForFirstResponse();
+    await sendData("G29 S0");
+    printerResponse = await printerResponsePromise
+    console.log(parseResponse(printerResponse));
+}
+
+export async function increaseZHeight() {
+    //TODO only perform if currently if creatingMesh
+    const zAmount = store.getState().root.meshState.zChangeAmount;
+    await adjustZHeight(`${zAmount}`);
+}
+
+export async function decreaseZHeight() {
+    //TODO only perform if currently if creatingMesh
+    const zAmount = store.getState().root.meshState.zChangeAmount;
+    await adjustZHeight(`-${zAmount}`); //TODO add negative back in later
+}
+
+async function adjustZHeight(zAmount: string) {
+    let printerResponsePromise = waitForFirstResponse();
+
+    printerResponsePromise = waitForFirstResponse();
+    await sendData(`G1 Z${zAmount}`);
+    console.log("Command sent");
+
+    const printerResponse = await printerResponsePromise;
+    console.log(parseResponse(printerResponse));
+
+    printerResponsePromise = waitForFirstResponse();
+    await sendData("G90");
+    console.log("Command sent");
+}
+
+export async function cancelMeshBedLeveling() {
+    console.log("Cancelling MBL!");
+    store.dispatch(setCurrentMeshPoint(0));
+    store.dispatch(setCreatingMesh(false));
+    store.dispatch(setAwaitingResponse(false))
+    //TODO reset mesh? delete current mesh progress?
+}
+
+/***
+ * The goal of this function is just to build out a basic GCode sender, like a barebones Pronterface
+ * @param gcode
+ */
+export function sendGCode(gcode: string) {
+    console.log(gcode)
 }

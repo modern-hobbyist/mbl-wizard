@@ -2,12 +2,13 @@ import React from 'react';
 import {Grid} from "@mui/material";
 import {ConnectButton} from "./ConnectButton";
 import {PortSelect} from "./PortSelect";
-import {SendButton} from "./SendButton";
+import {StartButton} from "./StartButton";
 import {BaudSelect} from "./BaudSelect";
-import {MeshPointInput} from "./MeshPointInput";
-import {BedDimensionInput} from "./BedDimensionInput";
 import {useAppDispatch} from "../hooks";
-import {calculateMeshPoints, setBedXDimension, setBedYDimension} from "../actions/meshActions";
+import {NextButton} from "./NextButton";
+import {ZHeightButton} from "./ZHeightButton";
+import {decreaseZHeight, increaseZHeight} from "../actions/meshActions";
+import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
 
 export function Application() {
     const dispatch = useAppDispatch();
@@ -25,34 +26,28 @@ export function Application() {
                     <ConnectButton/>
                 </Grid>
                 <Grid item xs={2}>
-                    <SendButton/>
+                    <StartButton/>
+                </Grid>
+                <Grid item xs={2}>
+                    <NextButton/>
                 </Grid>
             </Grid>
             <Grid container columnSpacing={1}>
-                <Grid item xs={3}>
-                    <MeshPointInput/>
+                <Grid item xs={2}>
+                    <ZHeightButton icon={<ArrowUpward/>} callback={() => {
+                        dispatch(increaseZHeight);
+                    }}/>
                 </Grid>
-                <Grid item xs={3}>
-                    <BedDimensionInput
-                        id="bedXDimension"
-                        label="Bed X Dimension"
-                        callback={e => {
-                            dispatch(setBedXDimension(Number(e.target.value)))
-                            calculateMeshPoints()
-                        }}
-                    />
-                </Grid>
-                <Grid item xs={3}>
-                    <BedDimensionInput
-                        id="bedYDimension"
-                        label="Bed Y Dimension"
-                        callback={e => {
-                            dispatch(setBedYDimension(Number(e.target.value)))
-                            calculateMeshPoints()
-                        }}
-                    />
+                <Grid item xs={2}>
+                    <ZHeightButton icon={<ArrowDownward/>} callback={() => {
+                        dispatch(decreaseZHeight);
+                    }}/>
                 </Grid>
             </Grid>
+            {/*TODO add mesh point printout grid*/}
+            {/*TODO add controls for z position*/}
+            {/*TODO add next point button*/}
+
         </div>
     )
 }

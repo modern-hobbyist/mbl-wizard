@@ -1,10 +1,11 @@
 import React from 'react';
 import {Button, FormControl} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../hooks";
-import {sendData} from "../actions/adminActions";
+import {cancelMeshBedLeveling, startMeshBedLeveling} from "../actions/meshActions";
 
-export function SendButton() {
+export function StartButton() {
     const connectedToPort = useAppSelector(state => state.root.adminState.connectedToPort)
+    const creatingMesh = useAppSelector(state => state.root.meshState.creatingMesh)
 
     const dispatch = useAppDispatch()
 
@@ -13,11 +14,11 @@ export function SendButton() {
             <Button
                 sx={{m: 1, minWidth: 120}}
                 variant="contained"
-                color="info"
+                color={creatingMesh ? "error" : "info"}
                 disabled={!connectedToPort}
                 onClick={() => {
-                    dispatch(sendData)
-                }}>Send Data</Button>
+                    creatingMesh ? dispatch(cancelMeshBedLeveling) : dispatch(startMeshBedLeveling)
+                }}>{creatingMesh ? "Cancel" : "Start"}</Button>
         </FormControl>
     )
 }

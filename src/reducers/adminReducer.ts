@@ -5,8 +5,10 @@ import {
     CONNECTED_TO_PORT,
     CONNECTING_TO_PORT,
     SERIAL_PORTS,
+    SET_AWAITING_RESPONSE,
     SET_SELECTED_BAUD_RATE,
     SET_SELECTED_PORT,
+    SET_SENDING_COMMAND
 } from '../actions/adminActions';
 
 export interface AdminState {
@@ -14,6 +16,8 @@ export interface AdminState {
     readonly selectedPort: string;
     readonly connectingToPort: boolean;
     readonly connectedToPort: boolean;
+    readonly sendingCommand: boolean;
+    readonly awaitingResponse: boolean;
     readonly serialPort: SerialPort;
     readonly selectedBaudRate: number;
 }
@@ -23,6 +27,8 @@ const defaultState: AdminState = {
     selectedPort: "",
     connectingToPort: false,
     connectedToPort: false,
+    sendingCommand: false,
+    awaitingResponse: false,
     serialPort: null,
     selectedBaudRate: 256000
 };
@@ -51,6 +57,16 @@ export const adminReducer: Reducer<AdminState> = (
             return {
                 ...state,
                 connectedToPort: action.value
+            };
+        case SET_SENDING_COMMAND:
+            return {
+                ...state,
+                sendingCommand: action.value
+            };
+        case SET_AWAITING_RESPONSE:
+            return {
+                ...state,
+                awaitingResponse: action.value
             };
         case SET_SELECTED_BAUD_RATE:
             return {
