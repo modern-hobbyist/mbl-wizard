@@ -11,8 +11,7 @@ import {decreaseZHeight, increaseZHeight} from "../actions/meshActions";
 import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
 import {ZHeightSelect} from "./ZHeightSelect";
 import {MeshDisplay} from "./MeshDisplay";
-
-declare const MONITOR_WINDOW_WEBPACK_ENTRY: string;
+import {openMonitor} from "../actions/adminActions";
 
 export function Application() {
     const dispatch = useAppDispatch();
@@ -64,7 +63,7 @@ export function Application() {
                 <Grid item xs={2}>
                     <Button
                         onClick={() => {
-                            window.open(MONITOR_WINDOW_WEBPACK_ENTRY)
+                            dispatch(openMonitor)
                         }}
                     >
                         Open GCode Sender

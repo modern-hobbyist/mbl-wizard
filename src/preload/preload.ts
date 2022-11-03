@@ -6,5 +6,6 @@ const {contextBridge, ipcRenderer} = require('electron')
 contextBridge.exposeInMainWorld('electron', {
     setTitle: (title: string) => ipcRenderer.send('set-title', title),
     setSelectedPort: (port: string) => ipcRenderer.send('set-selected-port', port),
-    onPortList: (callback) => ipcRenderer.on('port-list', callback)
+    onPortList: (callback) => ipcRenderer.on('port-list', callback),
+    openMonitor: () => ipcRenderer.send('open-monitor')
 })

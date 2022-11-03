@@ -14,7 +14,9 @@ let selectedPort = "{}";
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MONITOR_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const MONITOR_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -141,6 +143,33 @@ const createWindow = (): void => {
     });
 };
 
+let serialMonitor = null
+
+function openSerialMonitor(event: IpcMainEvent) {
+    if (serialMonitor) {
+        serialMonitor.focus()
+        return
+    }
+
+    serialMonitor = new BrowserWindow({
+        height: 600,
+        width: 900,
+        x: 100,
+        y: 100,
+        title: "Serial Monitor",
+        webPreferences: {
+            preload: MONITOR_WINDOW_PRELOAD_WEBPACK_ENTRY,
+            contextIsolation: true,
+        },
+    })
+
+    serialMonitor.loadURL(MONITOR_WINDOW_WEBPACK_ENTRY)
+
+    serialMonitor.on('closed', function () {
+        serialMonitor = null
+    })
+}
+
 function handleSetTitle(event: IpcMainEvent, title: string) {
     const webContents = event.sender
     const win = BrowserWindow.fromWebContents(webContents)
@@ -162,6 +191,7 @@ app.whenReady().then(() => {
 }).then(() => {
     ipcMain.on('set-title', handleSetTitle)
     ipcMain.on('set-selected-port', handleSetSelectedPort)
+    ipcMain.on('open-monitor', openSerialMonitor)
     createWindow()
 });
 
@@ -169,9 +199,9 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    // if (process.platform !== 'darwin') {
+    app.quit();
+    // }
 });
 
 app.on('activate', () => {

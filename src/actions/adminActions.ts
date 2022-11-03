@@ -280,6 +280,10 @@ export async function disconnectFromPort() {
     }
 }
 
+export async function openMonitor() {
+    window.electron.openMonitor()
+}
+
 function resetApp() {
     store.dispatch(setConnectedToPort(false))
     store.dispatch(setConnectingToPort(false))

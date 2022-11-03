@@ -46,13 +46,13 @@ module.exports = {
                             "js": "./src/renderer/monitor.ts",
                             "name": "monitor_window",
                             "preload": {
-                                "js": "./src/preload/monitor.ts"
+                                "js": "./src/preload/preload.ts"
                             }
                         }
                     ]
                 },
-                "port": 3001,
-                "loggerPort": 9001
+                "port": 3000,
+                "loggerPort": 9000
             }
         }
     ]
