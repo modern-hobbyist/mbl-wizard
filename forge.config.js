@@ -38,7 +38,15 @@ module.exports = {
                             "js": "./src/renderer/renderer.ts",
                             "name": "main_window",
                             "preload": {
-                                "js": "./src/preload.ts"
+                                "js": "./src/preload/preload.ts"
+                            }
+                        },
+                        {
+                            "html": "./src/monitor.html",
+                            "js": "./src/renderer/monitor.ts",
+                            "name": "monitor_window",
+                            "preload": {
+                                "js": "./src/preload/monitor.ts"
                             }
                         }
                     ]

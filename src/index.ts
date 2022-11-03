@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain, IpcMainEvent} from 'electron';
+import {app, BrowserWindow, ipcMain, IpcMainEvent, nativeTheme} from 'electron';
 import installExtension, {REDUX_DEVTOOLS} from 'electron-devtools-installer';
 
 const path = require('path')
@@ -53,6 +53,12 @@ function removeFromPortList(port: Electron.SerialPort) {
 }
 
 const createWindow = (): void => {
+    if (nativeTheme.shouldUseDarkColors) {
+        nativeTheme.themeSource = 'dark'
+    } else {
+        nativeTheme.themeSource = 'light'
+    }
+
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         height: 600,

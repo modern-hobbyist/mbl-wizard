@@ -16,35 +16,38 @@ import {useAppDispatch, useAppSelector} from "../hooks";
 export function MeshDisplay() {
     const dispatch = useAppDispatch()
     const meshData = JSON.parse(useAppSelector(state => state.root.meshState.meshData))
+    const zChangeAmount = useAppSelector(state => state.root.meshState.zChangeAmount)
 
-    //TODO update to actually use the meshData, and change forloop to go through actual points.
+    //TODO update to actually use the meshData
     //TODO add ability to change individual points.
     //TODO add a warning that it can be dangerous to change points directly, make sure to double check before saving to printer.
     const meshItems = [];
-    for (let i = 0; i < 5; i++) {
+    for (let row = 0; row < 5; row++) {
+        const colItems = [];
+        for (let col = 0; col < 5; col++) {
+            colItems.push(
+                <Grid item xs={2} key={`item-${row}-${col}`}>
+                    <TextField variant="standard" defaultValue="0.01" type="number"
+                               onChange={() => {
+                                   //TODO set the actual grid point value here.
+                                   console.log("Changed");
+                               }}
+                               inputProps={{step: `${zChangeAmount}`}}
+                    />
+                </Grid>
+            )
+        }
+
         meshItems.push(
-            <Grid container columnSpacing={1} justifyContent="center" key={`row-${i}`}>
-                <Grid item xs={1} key={`item-${i}-label`}>
-                    <Typography align="center" sx={{color: 'text.secondary'}}>{i + 1}</Typography>
+            <Grid container columnSpacing={1} justifyContent="center" key={`row-${row}`}>
+                <Grid item xs={1} key={`item-${row}-label`}>
+                    <Typography align="center" sx={{color: 'text.secondary'}}>{row + 1}</Typography>
                 </Grid>
-                <Grid item xs={2} key={`item-${i}-0`}>
-                    <TextField variant="standard" defaultValue="0.01" type="number"/>
-                </Grid>
-                <Grid item xs={2} key={`item-${i}-1`}>
-                    <TextField variant="standard" defaultValue="0.01" type="number"></TextField>
-                </Grid>
-                <Grid item xs={2} key={`item-${i}-2`}>
-                    <TextField variant="standard" defaultValue="0.01" type="number"></TextField>
-                </Grid>
-                <Grid item xs={2} key={`item-${i}-3`}>
-                    <TextField variant="standard" defaultValue="0.01" type="number"></TextField>
-                </Grid>
-                <Grid item xs={2} key={`item-${i}-4`}>
-                    <TextField variant="standard" defaultValue="0.01" type="number"></TextField>
-                </Grid>
+                {colItems}
             </Grid>
         )
     }
+
     const card = (
         <Card variant="outlined">
             <React.Fragment>

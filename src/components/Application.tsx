@@ -1,5 +1,5 @@
 import React from 'react';
-import {ButtonGroup, Grid} from "@mui/material";
+import {Button, ButtonGroup, Grid} from "@mui/material";
 import {ConnectButton} from "./ConnectButton";
 import {PortSelect} from "./PortSelect";
 import {StartButton} from "./StartButton";
@@ -11,6 +11,8 @@ import {decreaseZHeight, increaseZHeight} from "../actions/meshActions";
 import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
 import {ZHeightSelect} from "./ZHeightSelect";
 import {MeshDisplay} from "./MeshDisplay";
+
+declare const MONITOR_WINDOW_WEBPACK_ENTRY: string;
 
 export function Application() {
     const dispatch = useAppDispatch();
@@ -56,6 +58,17 @@ export function Application() {
                 </Grid>
                 <Grid item xs={2}>
                     <NextButton/>
+                </Grid>
+            </Grid>
+            <Grid container columnSpacing={1} justifyContent="center">
+                <Grid item xs={2}>
+                    <Button
+                        onClick={() => {
+                            window.open(MONITOR_WINDOW_WEBPACK_ENTRY)
+                        }}
+                    >
+                        Open GCode Sender
+                    </Button>
                 </Grid>
             </Grid>
             {/*TODO add mesh point printout grid*/}
