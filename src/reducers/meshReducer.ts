@@ -7,18 +7,16 @@ import {
     SET_CREATING_MESH,
     SET_CURRENT_MESH_POINT,
     SET_MESH_DATA,
-    SET_MESH_POINTS_COUNT,
     SET_MESH_X_POINTS,
     SET_MESH_Y_POINTS,
     SET_Z_CHANGE_AMOUNT
 } from '../actions/meshActions';
 
 export interface MeshState {
-    readonly meshPointsCount: number;
     readonly currentMeshPoint: number;
     readonly meshXPoints: number;
     readonly meshYPoints: number;
-    readonly meshData: string;
+    readonly meshData: [];
     readonly bedXDimension: number;
     readonly bedYDimension: number;
     readonly creatingMesh: boolean;
@@ -26,11 +24,10 @@ export interface MeshState {
 }
 
 const defaultState: MeshState = {
-    meshPointsCount: 25,
     currentMeshPoint: 0,
-    meshXPoints: 5,
-    meshYPoints: 5,
-    meshData: "{}",
+    meshXPoints: 0,
+    meshYPoints: 0,
+    meshData: [],
     bedXDimension: 210,
     bedYDimension: 210,
     creatingMesh: false,
@@ -42,11 +39,6 @@ export const meshReducer: Reducer<MeshState> = (
     action: MeshAction
 ) => {
     switch (action.type) {
-        case SET_MESH_POINTS_COUNT:
-            return {
-                ...state,
-                meshPointsCount: action.value
-            };
         case SET_CURRENT_MESH_POINT:
             return {
                 ...state,

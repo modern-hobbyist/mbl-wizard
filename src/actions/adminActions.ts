@@ -4,7 +4,7 @@ import {RootState, store} from "../store";
 import {AnyAction} from "@reduxjs/toolkit";
 import {normalizeGCode} from "../utilities/utilities";
 import EventTarget from 'events';
-import {setCreatingMesh, setCurrentMeshPoint} from "./meshActions";
+import {getExistingMesh, resetMesh, setCreatingMesh, setCurrentMeshPoint} from "./meshActions";
 
 export const SERIAL_PORTS = 'SERIAL_PORTS';
 export const SET_SELECTED_PORT = 'SET_SELECTED_PORT';
@@ -160,13 +160,15 @@ export async function connectToPort() {
 
     listenToPort();
 
-    const connectionResponse = await waitForFirstResponse();
+    const connectionResponse = await waitForFirstResponse("echo:SD card ok");
     confirmConnection();
 
     //TODO confirm if printer can support mbl with similar to below
     // await sendData("G29 S0");
     // const meshResponse = await waitForFirstResponse();
     // console.log(meshResponse)
+
+    await getExistingMesh();
 }
 
 async function listenToPort() {
@@ -189,7 +191,6 @@ async function listenToPort() {
                 if (done) {
                     throw new Error('Serial port closed');
                 }
-                console.log(value);
             }
             // May be helpful in determining where hidden escaped characters are.
             // console.log(JSON.stringify(totalString));
@@ -213,12 +214,11 @@ async function listenToPort() {
 
 export async function waitForFirstResponse(expectedResponse = "", timeout = 10000): Promise<string> {
     //TODO implement timeout?
-    console.log("Listener setup");
     store.dispatch(setAwaitingResponse(true));
     const printerResponse: string = await new Promise(function (resolve, reject) {
         messageEventTarget.on('message', (message: string) => {
             if (expectedResponse == "" || message.startsWith(expectedResponse)) {
-                console.log("Listener closed");
+                console.log(message);
                 resolve(message);
             }
         });
@@ -269,6 +269,9 @@ export async function disconnectFromPort() {
         store.dispatch(setCreatingMesh(false))
         store.dispatch(setAwaitingResponse(false))
         store.dispatch(setCurrentMeshPoint(0))
+
+        store.dispatch(resetMesh);
+
         await cancelReader();
         await closeWriter();
         const serialPort = await getSelectedPort();

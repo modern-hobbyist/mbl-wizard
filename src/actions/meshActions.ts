@@ -8,22 +8,11 @@ import {parseResponse} from "../utilities/utilities";
 export const SET_MESH_DATA = 'SET_MESH_DATA';
 export const SET_MESH_X_POINTS = 'SET_MESH_X_POINTS';
 export const SET_MESH_Y_POINTS = 'SET_MESH_Y_POINTS';
-export const SET_MESH_POINTS_COUNT = 'SET_MESH_POINTS_COUNT';
 export const SET_CURRENT_MESH_POINT = 'SET_CURRENT_MESH_POINT';
 export const SET_BED_X_DIMENSION = 'SET_BED_X_DIMENSION';
 export const SET_BED_Y_DIMENSION = 'SET_BED_Y_DIMENSION';
 export const SET_CREATING_MESH = 'SET_CREATING_MESH';
 export const SET_Z_CHANGE_AMOUNT = 'SET_Z_CHANGE_AMOUNT';
-
-export interface SetMeshPointsCountAction extends Action {
-    type: 'SET_MESH_POINTS_COUNT';
-    value: number;
-}
-
-export const setMeshPointsCount: ActionCreator<SetMeshPointsCountAction> = (meshPoints: number) => ({
-    type: SET_MESH_POINTS_COUNT,
-    value: meshPoints
-});
 
 export interface SetCurrentMeshPointAction extends Action {
     type: 'SET_CURRENT_MESH_POINT';
@@ -57,10 +46,10 @@ export const setMeshYPoints: ActionCreator<SetMeshYPointsAction> = (meshPoints: 
 
 export interface SetMeshData extends Action {
     type: 'SET_MESH_DATA';
-    value: string;
+    value: [];
 }
 
-export const setMeshData: ActionCreator<SetMeshData> = (meshData: string) => ({
+export const setMeshData: ActionCreator<SetMeshData> = (meshData: []) => ({
     type: SET_MESH_DATA,
     value: meshData
 });
@@ -106,7 +95,6 @@ export const setZChangeAmount: ActionCreator<SetZChangeAmountAction> = (zChangeA
 });
 
 export type MeshAction =
-    | SetMeshPointsCountAction
     | SetCurrentMeshPointAction
     | SetMeshData
     | SetMeshXPointsAction
@@ -116,21 +104,56 @@ export type MeshAction =
     | SetCreatingMeshAction
     | SetZChangeAmountAction;
 
-export const updateMeshPointCount =
-    (meshXPoints: number, meshYPoints: number): ThunkAction<void, RootState, unknown, AnyAction> =>
-        async () => {
-            //TODO handle the case for 5
-            store.dispatch(setMeshXPoints(meshXPoints));
-            store.dispatch(setMeshYPoints(meshYPoints));
-            store.dispatch(setMeshPointsCount(meshXPoints * meshYPoints));
-        }
+export async function getExistingMesh() {
+    const printerMeshResponse = waitForFirstResponse("State: ");
+    sendData("G29 S0");
+    const currentMeshResponse = await printerMeshResponse;
+    const parsedMesh = parseResponse(currentMeshResponse);
 
-export function getNumXY() {
-    //TODO run either M
+    const [xPoints, yPoints] = extractXYMeshPoints(parsedMesh[1]);
+    const meshData = interpretMeshData(parsedMesh, xPoints, yPoints);
+
+    store.dispatch(setMeshXPoints(xPoints));
+    store.dispatch(setMeshYPoints(yPoints));
+
 }
 
-export function getExistingMesh() {
+function interpretMeshData(parsedMesh: string[], xPoints: number, yPoints: number) {
+    // 0:"State: Off"
+    // 1:"Num X,Y: 5,5"
+    // 2:"Z offset: 0.00000"
+    // 3:"Measured points:"
+    // 4:"0        1        2        3        4"
+    // 5:"0 +0.00000 +0.06000 +0.12000 +0.08000 -0.02000"
+    // 6:"1 -0.04000 +0.04000 +0.10000 +0.12000 +0.00000"
+    // 7:"2 -0.08000 +0.00000 +0.10000 +0.06000 -0.04000"
+    // 8:"3 -0.08000 +0.02000 +0.06000 +0.08000 -0.04000"
+    // 9:"4 -0.04000 +0.06000 +0.10000 +0.08000 -0.04000"
+    // 10:"X:0.00 Y:0.00 Z:0.00 E:0.00 Count X:0 Y:0 Z:0"
+    // 11:"ok"
 
+
+    const meshData = [];
+    const meshStartIndex = 5;
+
+    for (let i = meshStartIndex; i < meshStartIndex + xPoints; i++) {
+        const row = parsedMesh[i].split(" ").slice(1);
+        meshData[i - meshStartIndex] = [];
+        for (let j = 0; j < yPoints; j++) {
+            meshData[i - meshStartIndex].push(parseFloat(row[j]).toFixed(2));
+        }
+    }
+
+    store.dispatch(setMeshData(meshData));
+
+    return meshData;
+}
+
+function extractXYMeshPoints(numXY: string): [number, number] {
+    const pointsString = numXY.split(":").pop().trim();
+    const pointsArray = pointsString.split(",");
+
+    return [Number.parseInt(pointsArray[0]), Number.parseInt(pointsArray[1])];
 }
 
 export async function startMeshBedLeveling() {
@@ -139,15 +162,9 @@ export async function startMeshBedLeveling() {
     store.dispatch(setCurrentMeshPoint(0));
     store.dispatch(setCreatingMesh(true));
 
-    let printerResponse: string;
+    //TODO do I need to call get mesh here?
 
-    //Set up the listener first, then send the data.
-    let printerResponsePromise = waitForFirstResponse();
-    sendData("G29 S0");
-    const currentMeshResponse = await printerResponsePromise
-    console.log(parseResponse(currentMeshResponse))
-
-    printerResponsePromise = waitForFirstResponse("MBL G29 point");
+    const printerResponsePromise = waitForFirstResponse("MBL G29 point");
     await sendData("G29 S1");
     //Once it gets to point 1, it sends this: "MBL G29 point 1 of 25"
     const firstPointResponse = await printerResponsePromise
@@ -211,3 +228,26 @@ export async function cancelMeshBedLeveling() {
 export function sendGCode(gcode: string) {
     console.log(gcode)
 }
+
+export async function resetMesh() {
+    store.dispatch(setMeshData([]));
+    store.dispatch(setMeshXPoints(0));
+    store.dispatch(setMeshYPoints(0));
+}
+
+export const updateSpecificMeshPoint =
+    (xCoord: number, yCoord: number, value: number): ThunkAction<void, RootState, unknown, AnyAction> =>
+        async () => {
+            //TODO handle the case for 5
+            console.log("X: ", xCoord, " Y: ", yCoord, " Val: ", value);
+            const printerResponsePromise = waitForFirstResponse();
+            await sendData(`G29 S3 I${xCoord} J${yCoord} Z${value}`);
+
+            const printerResponse = await printerResponsePromise;
+            if (printerResponse.startsWith("X not entered.")) {
+                const printerResponsePromise = waitForFirstResponse();
+                await sendData(`G29 S3 X${xCoord + 1} Y${yCoord + 1} Z${value}`);
+                await printerResponsePromise;
+            }
+            getExistingMesh();
+        }
