@@ -105,8 +105,10 @@ export type MeshAction =
     | SetZChangeAmountAction;
 
 export async function getExistingMesh() {
+    console.log("getting mesh data");
     const printerMeshResponse = waitForFirstResponse("State: ");
-    sendData("G29 S0");
+    await sendData("G29 S0");
+    console.log("Fetched mesh data");
     const currentMeshResponse = await printerMeshResponse;
     const parsedMesh = parseResponse(currentMeshResponse);
 
