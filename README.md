@@ -13,6 +13,11 @@ functionality of the app, but I wanted to do some learning while I built it.
 * Typescript
 * Material UI
 
+## Other Technology
+
+The serial communication was done with WebSerialApi, which is still a new technology, so please create an issue or PR if
+you find any unsupported functionality with your printers.
+
 # Getting Started
 
 Install dependencies with `yarn`
