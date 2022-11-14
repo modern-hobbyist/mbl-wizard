@@ -1,0 +1,64 @@
+name: Build
+on: [ pull_request ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: yarn
+      - run: yarn test
+
+  build_on_linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@master
+        with:
+          node-version: 14
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: install dependencies
+        run: yarn
+      - name: Patch Packages
+        run: yarn patch-package
+      - name: build
+        run: yarn make-linux
+
+  build_on_mac:
+    name: Mac
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@master
+        with:
+          node-version: 14
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: install dependencies
+        run: yarn
+      - name: Patch Packages
+        run: yarn patch-package
+      - name: build
+        run: yarn make-mac
+
+  build_on_win:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@master
+        with:
+          node-version: 14
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: install dependencies
+        run: yarn
+      - name: Patch Packages
+        run: yarn patch-package
+      - name: build
+        run: yarn make
