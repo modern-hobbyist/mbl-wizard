@@ -6,7 +6,7 @@ import {useAppDispatch, useAppSelector} from "../hooks";
 export function BaudSelect() {
     const dispatch = useAppDispatch()
     const selectedBaudRate = useAppSelector(state => state.root.adminState.selectedBaudRate)
-    const availableBaudRates = [110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000];
+    const availableBaudRates = [110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 128000, 250000];
 
     return (
         <FormControl sx={{m: 1, minWidth: 120}} size="small">
@@ -15,7 +15,7 @@ export function BaudSelect() {
                 labelId="baudRatesLabel"
                 id="baudRatesSelect"
                 label="Baud Rate"
-                defaultValue="256000"
+                defaultValue="250000"
                 onChange={e => {
                     dispatch(updateBaudRate(Number(e.target.value)))
                 }}

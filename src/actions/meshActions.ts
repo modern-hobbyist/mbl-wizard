@@ -105,8 +105,11 @@ export type MeshAction =
     | SetZChangeAmountAction;
 
 export async function getExistingMesh() {
-    const printerMeshResponse = waitForFirstResponse("State: ");
-    sendData("G29 S0");
+    console.log("getting mesh data");
+    const gCode = "G29 S0";
+    const printerMeshResponse = waitForFirstResponse("State: ", gCode);
+    await sendData(gCode);
+    console.log("Fetched mesh data");
     const currentMeshResponse = await printerMeshResponse;
     const parsedMesh = parseResponse(currentMeshResponse);
 
@@ -163,27 +166,26 @@ export async function startMeshBedLeveling() {
     store.dispatch(setCreatingMesh(true));
 
     //TODO do I need to call get mesh here?
-
-    const printerResponsePromise = waitForFirstResponse("MBL G29 point");
-    await sendData("G29 S1");
+    const gCode = "G29 S1";
+    const printerResponsePromise = waitForFirstResponse("MBL G29 point", gCode);
+    await sendData(gCode);
     //Once it gets to point 1, it sends this: "MBL G29 point 1 of 25"
     const firstPointResponse = await printerResponsePromise
     console.log(parseResponse(firstPointResponse));
 }
 
 export async function nextMeshPoint() {
-    let printerResponse: string;
 
     //Set up the listener first, then send the data.
-    let printerResponsePromise = waitForFirstResponse("MBL G29 point");
+    const printerResponsePromise = waitForFirstResponse("MBL G29 point");
     await sendData("G29 S2");
-    printerResponse = await printerResponsePromise;
+    const printerResponse = await printerResponsePromise;
     console.log(parseResponse(printerResponse));
 
-    printerResponsePromise = waitForFirstResponse();
-    await sendData("G29 S0");
-    printerResponse = await printerResponsePromise
-    console.log(parseResponse(printerResponse));
+    // printerResponsePromise = waitForFirstResponse();
+    // await sendData("G29 S0");
+    // printerResponse = await printerResponsePromise
+    // console.log(parseResponse(printerResponse));
 }
 
 export async function increaseZHeight() {

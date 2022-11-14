@@ -2,9 +2,10 @@ import {Action, ActionCreator} from 'redux';
 import {ThunkAction} from 'redux-thunk';
 import {RootState, store} from "../store";
 import {AnyAction} from "@reduxjs/toolkit";
-import {normalizeGCode} from "../utilities/utilities";
 import EventTarget from 'events';
 import {getExistingMesh, resetMesh, setCreatingMesh, setCurrentMeshPoint} from "./meshActions";
+import {normalizeGCode} from "../utilities/utilities";
+
 
 export const SERIAL_PORTS = 'SERIAL_PORTS';
 export const SET_SELECTED_PORT = 'SET_SELECTED_PORT';
@@ -127,21 +128,22 @@ export const selectSerialPort =
         }
 
 export async function sendData(gcode: string) {
+    console.log(">>> ", normalizeGCode(gcode, {sendLineNumber: false}));
     store.dispatch(setSendingCommand(true))
-    console.log(">>> ", gcode);
+
     const serialPort = await getSelectedPort();
+
     const textEncoder = new TextEncoderStream();
-    writableStreamClosed = textEncoder.readable.pipeTo(serialPort.writable);
-    writableStreamClosed.catch((reason) => {
-        console.log("WRITER ERROR");
-        console.log(reason);
-    })
-    writer = textEncoder.writable.getWriter();
-    await writer.write(normalizeGCode(gcode, {
-        sendLineNumber: false
-    }));
+    const writableStreamClosed = textEncoder.readable.pipeTo(serialPort.writable);
+
+    const writer = textEncoder.writable.getWriter();
+
+    await writer.ready
+
+    await writer.write(normalizeGCode(gcode, {sendLineNumber: false}));
 
     await writer.close();
+
     store.dispatch(setSendingCommand(false))
 }
 
@@ -150,7 +152,13 @@ export async function connectToPort() {
     //TODO update to actually connect/disconnect from port.
     store.dispatch(setConnectingToPort(true))
     const serialPort = await getSelectedPort();
+    const connectionResponse = waitForFirstResponse("echo:SD card ok");
     await serialPort.open({
+        bufferSize: 1600,
+        // dataBits: 8,
+        // flowControl: "hardware",
+        parity: "even",
+        // stopBits: 1,
         baudRate: store.getState().root.adminState.selectedBaudRate
     });
 
@@ -158,9 +166,11 @@ export async function connectToPort() {
         disconnectFromPort();
     });
 
+    // await gcodeSender("G29 S0", 250000);
+
     listenToPort();
 
-    const connectionResponse = await waitForFirstResponse("echo:SD card ok");
+    await connectionResponse;
     confirmConnection();
 
     //TODO confirm if printer can support mbl with similar to below
@@ -174,31 +184,29 @@ export async function connectToPort() {
 async function listenToPort() {
     //This is a bit confusing, but basically I have to cancel the reader below in "disconnectFromPort" and catch the resulting error
     //That is how it is outlined on the docs for transform streams
-
     const serialPort = await getSelectedPort();
-    const textDecoder = await updateReadableStreamClosed(serialPort);
-    if (reader == null || await reader.closed) {
-        reader = textDecoder.readable.getReader();
-    }
-
+    const textDecoder = new TextDecoderStream();
+    readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
+    reader = textDecoder.readable.getReader();
     try {
         while (true) {
+            // Listen to data coming from the serial device.
             let totalString = "";
-
-            while (!totalString.endsWith('\n') && !totalString.endsWith('\r')) {
+            while (!totalString.endsWith('\n')) {
                 const {value, done} = await reader.read();
-                totalString = `${totalString}${value}`;
                 if (done) {
+                    // Allow the serial port to be closed later.
                     throw new Error('Serial port closed');
+                    break;
                 }
+                totalString = `${totalString}${value}`;
+                // value is a string.
             }
-            // May be helpful in determining where hidden escaped characters are.
-            // console.log(JSON.stringify(totalString));
-            if (totalString.length > 0) {
-                messageEventTarget.emit('message', totalString)
-            }
+            console.log(totalString);
+            messageEventTarget.emit('message', totalString)
         }
     } catch (e) {
+        console.log("Here", e);
         //TODO handle?
         /*
             Since the readable stream is stays open until we disconnect (or the printer is disconnected)
@@ -212,14 +220,30 @@ async function listenToPort() {
     }
 }
 
-export async function waitForFirstResponse(expectedResponse = "", timeout = 10000): Promise<string> {
+async function readWithTimeout(port, timeout) {
+    const reader = port.readable.getReader();
+    const timer = setTimeout(() => {
+        reader.releaseLock();
+    }, timeout);
+    const {value, done} = await reader.read();
+    clearTimeout(timer);
+    reader.releaseLock();
+    return {value, done};
+}
+
+export async function waitForFirstResponse(expectedResponse = "", command?: string): Promise<string> {
     //TODO implement timeout?
+    console.log("Listening")
     store.dispatch(setAwaitingResponse(true));
     const printerResponse: string = await new Promise(function (resolve, reject) {
         messageEventTarget.on('message', (message: string) => {
             if (expectedResponse == "" || message.startsWith(expectedResponse)) {
-                console.log(message);
+                console.log("Done Listening");
                 resolve(message);
+            } else if (message.startsWith("Error:") || message.startsWith("Unknown command:")) {
+                //TODO resend message
+                console.log("Error: ", message);
+                // sendData(command);
             }
         });
     })
@@ -235,31 +259,28 @@ function confirmConnection() {
     store.dispatch(setConnectingToPort(false))
 }
 
-async function updateReadableStreamClosed(serialPort: SerialPort) {
-    const textDecoder = new TextDecoderStream();
-    readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
-    readableStreamClosed.catch(() => {
-        resetApp();
+// async function updateReadableStreamClosed(serialPort: SerialPort) {
+//     const textDecoder = new TextDecoderStream();
+//     readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
+//     readableStreamClosed.catch(() => {
+//         resetApp();
+//     })
+//     return textDecoder
+// }
+//
+async function cancelReader() {
+    await reader?.cancel();
+    await readableStreamClosed?.catch(() => { //ignore the error
+        console.log("Here");
     })
-    return textDecoder
-}
-
-async function cancelReader(message?: string) {
-    if (reader != null) {
-        await reader?.cancel();
-        await readableStreamClosed?.catch(() => { //ignore the error
-        })
-        reader = null;
-        readableStreamClosed = null;
-    }
-    return message;
+    reader = null;
+    readableStreamClosed = null;
 }
 
 async function closeWriter() {
-    if (!writer?.closed) {
-        await writer?.close();
-        await writableStreamClosed;
-    }
+    console.log("Closing writer");
+    await writer?.close();
+    await writableStreamClosed;
 }
 
 export async function disconnectFromPort() {
@@ -293,16 +314,37 @@ function resetApp() {
     store.dispatch(setCreatingMesh(false))
     store.dispatch(setAwaitingResponse(false))
     store.dispatch(setCurrentMeshPoint(0))
-    reader = null;
-    readableStreamClosed = null;
-    writableStreamClosed = null;
-    writer = null;
+    // reader = null;
+    // readableStreamClosed = null;
+    // writableStreamClosed = null;
+    // writer = null;
 }
+
+// async function getWriter() {
+//     // if (writer == null) {
+//     const serialPort = await getSelectedPort();
+//     const textEncoder = new TextEncoderStream();
+//     writableStreamClosed = textEncoder.readable.pipeTo(serialPort.writable);
+//     writableStreamClosed.catch((reason) => {
+//         console.log("WRITER ERROR");
+//         console.log(reason);
+//     })
+//     writer = textEncoder.writable.getWriter();
+//     // }
+//
+//     return writer;
+// }
 
 export async function getSelectedPort() {
     try {
         const currSerialPort = store.getState().root.adminState.serialPort
-        return currSerialPort ? currSerialPort : await navigator.serial.requestPort();
+        const toReturn = currSerialPort ? currSerialPort : await navigator.serial.requestPort();
+
+        if (toReturn == null) {
+            console.log("Serial port is null");
+        }
+
+        return toReturn;
     } catch (ex) {
         console.log("Didn't connect", ex);
     }
