@@ -12,6 +12,7 @@ import {ArrowDownward, ArrowUpward} from "@mui/icons-material";
 import {ZHeightSelect} from "./ZHeightSelect";
 import {MeshDisplay} from "./MeshDisplay";
 import {openMonitor} from "../actions/adminActions";
+import Monitor from "./Monitor";
 
 export function Application() {
     const dispatch = useAppDispatch();
@@ -69,6 +70,10 @@ export function Application() {
                         Open GCode Sender
                     </Button>
                 </Grid>
+            </Grid>
+
+            <Grid container columnSpacing={1} justifyContent="center">
+                <Monitor/>
             </Grid>
             {/*TODO add mesh point printout grid*/}
             {/*TODO add controls for z position*/}

@@ -142,10 +142,6 @@ export async function sendData(gcode: string) {
 
     await writer.write(normalizeGCode(gcode, {sendLineNumber: false}));
 
-    writableStreamClosed.catch((reason) => {
-        console.log("Rejected: ", reason);
-    })
-
     await writer.close();
 
     store.dispatch(setSendingCommand(false))
@@ -158,10 +154,10 @@ export async function connectToPort() {
     const serialPort = await getSelectedPort();
     const connectionResponse = waitForFirstResponse("echo:SD card ok");
     await serialPort.open({
-        // bufferSize: 255,
+        bufferSize: 1600,
         // dataBits: 8,
         // flowControl: "hardware",
-        // parity: "none",
+        parity: "even",
         // stopBits: 1,
         baudRate: store.getState().root.adminState.selectedBaudRate
     });
@@ -197,9 +193,7 @@ async function listenToPort() {
             // Listen to data coming from the serial device.
             let totalString = "";
             while (!totalString.endsWith('\n')) {
-                console.log("reading");
                 const {value, done} = await reader.read();
-                console.log("done reading");
                 if (done) {
                     // Allow the serial port to be closed later.
                     throw new Error('Serial port closed');
@@ -207,7 +201,6 @@ async function listenToPort() {
                 }
                 totalString = `${totalString}${value}`;
                 // value is a string.
-                console.log("value: ", value);
             }
             console.log(totalString);
             messageEventTarget.emit('message', totalString)
@@ -238,7 +231,7 @@ async function readWithTimeout(port, timeout) {
     return {value, done};
 }
 
-export async function waitForFirstResponse(expectedResponse = "", timeout = 10000): Promise<string> {
+export async function waitForFirstResponse(expectedResponse = "", command?: string): Promise<string> {
     //TODO implement timeout?
     console.log("Listening")
     store.dispatch(setAwaitingResponse(true));
@@ -250,6 +243,7 @@ export async function waitForFirstResponse(expectedResponse = "", timeout = 1000
             } else if (message.startsWith("Error:") || message.startsWith("Unknown command:")) {
                 //TODO resend message
                 console.log("Error: ", message);
+                // sendData(command);
             }
         });
     })

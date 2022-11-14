@@ -1,6 +1,10 @@
 export const normalizeGCode = (gcode, {sendLineNumber: sendLineNumber}) => {
+    let line = gcode;
+
     //Remove comments
-    return gcode.replace(/;.+/, '');
+    line = line.replace(/;.+/, '');
+
+    return `${gcode}\n`;
 };
 
 export function parseResponse(response: string): string[] {
