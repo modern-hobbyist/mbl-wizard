@@ -1,22 +1,30 @@
 import React from 'react';
-import {Box, Card, CardContent, Grid, TextField, Typography} from "@mui/material";
+import {Box, Card, CardContent, debounce, Grid, TextField, Typography} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../hooks";
 import {updateSpecificMeshPoint} from "../actions/meshActions";
 
 export function MeshDisplay() {
     const dispatch = useAppDispatch()
     const meshXPoints = useAppSelector(state => state.root.meshState.meshXPoints)
-    const meshYPoints = useAppSelector(state => state.root.meshState.meshXPoints)
+    const meshYPoints = useAppSelector(state => state.root.meshState.meshYPoints)
     const meshData = useAppSelector(state => state.root.meshState.meshData)
     const zChangeAmount = useAppSelector(state => state.root.meshState.zChangeAmount)
+
+    const updateMeshPoint = (value, col, row) => {
+        dispatch(updateSpecificMeshPoint(col, row, value))
+    };
+
+    // const [pointValue, setPointValue] = React.useState("");
+    const delayedQuery = debounce((value, col, row) => updateMeshPoint(value, col, row), 1000);
+    const handleUpdatedPoint = (e, col, row) => {
+        // setPointValue(e.target.value);
+        delayedQuery(parseFloat(e.target.value), col, row);
+    };
 
     const altMeshMessage = (
         <Typography align="center" sx={{color: 'text.secondary'}}>No Mesh Data</Typography>
     )
 
-    //TODO update to actually use the meshData
-    //TODO add ability to change individual points.
-    //TODO add a warning that it can be dangerous to change points directly, make sure to double check before saving to printer.
     const meshDisplayItems = [];
     for (let row = 0; row < meshXPoints; row++) {
         const colItems = [];
@@ -26,7 +34,8 @@ export function MeshDisplay() {
                     <TextField variant="outlined"
                                size="small" defaultValue={meshData[row][col]} type="number"
                                onChange={(event) => {
-                                   dispatch(updateSpecificMeshPoint(col, row, parseFloat(event.target.value)))
+                                   // handleUpdatedPoint(event, col, row)
+                                   handleUpdatedPoint(event, col, row);
                                }}
                                inputProps={{step: `${zChangeAmount}`}}
                     />

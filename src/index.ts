@@ -32,7 +32,6 @@ function overwritePortList(portList: Electron.SerialPort[]) {
 
 function updatePortListUi(mainWindow: BrowserWindow) {
     const newPortList = JSON.stringify(globalPortList);
-    console.log("Main: ", newPortList);
     mainWindow.webContents.send('port-list', JSON.stringify(globalPortList));
 }
 
@@ -80,21 +79,16 @@ const createWindow = (): void => {
     }
 
     mainWindow.webContents.session.on('select-serial-port', (event, portList, webContents, callback) => {
-        console.log('SELECT-SERIAL-PORT FIRED WITH', portList);
-        console.log("Main -- Ports: ", portList);
-
         overwritePortList(portList);
         updatePortListUi(mainWindow);
 
         //Display some type of dialog so that the user can pick a port
         mainWindow.webContents.session.on('serial-port-added', (event, port, webContents) => {
-            console.log('serial-port-added FIRED WITH', port);
             updatePortListUi(mainWindow);
             event.preventDefault();
         })
 
         mainWindow.webContents.session.on('serial-port-removed', (event, port) => {
-            console.log('serial-port-removed FIRED WITH', port);
             updatePortListUi(mainWindow);
             event.preventDefault();
         })
@@ -116,14 +110,12 @@ const createWindow = (): void => {
     })
 
     mainWindow.webContents.session.on('serial-port-added', (event, port) => {
-        console.log('serial-port-added FIRED WITH', port);
         addToPortList(port);
         updatePortListUi(mainWindow);
         event.preventDefault();
     })
 
     mainWindow.webContents.session.on('serial-port-removed', (event, port) => {
-        console.log('serial-port-removed FIRED WITH', port);
         removeFromPortList(port);
         updatePortListUi(mainWindow);
         event.preventDefault();
@@ -135,10 +127,10 @@ const createWindow = (): void => {
 
     mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
         // This permission check handler is not needed by default but available if you want to limit serial requests
-        console.log(`In PermissionCheckHandler`);
-        console.log(`Webcontents url: ${webContents.getURL()}`);
-        console.log(`Permission: ${permission}`);
-        console.log(`Requesting Origin: ${requestingOrigin}`, details);
+        // console.log(`In PermissionCheckHandler`);
+        // console.log(`Webcontents url: ${webContents.getURL()}`);
+        // console.log(`Permission: ${permission}`);
+        // console.log(`Requesting Origin: ${requestingOrigin}`, details);
         return true;
     });
 };
@@ -150,7 +142,6 @@ function handleSetTitle(event: IpcMainEvent, title: string) {
 }
 
 function handleSetSelectedPort(event: IpcMainEvent, newPort: string) {
-    console.log("Setting port on main: ", newPort);
     selectedPort = newPort;
 }
 
@@ -163,7 +154,6 @@ function openLink(event: IpcMainEvent, url: string) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
     installExtension(REDUX_DEVTOOLS)
-        .then((name) => console.log(`Added Extension:  ${name}`))
         .catch((err) => console.log('An error occurred: ', err));
 }).then(() => {
     ipcMain.on('set-title', handleSetTitle)

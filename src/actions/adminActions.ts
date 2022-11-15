@@ -111,8 +111,6 @@ type Message = {
     message: string;
 };
 
-//TODO clean up all this port handling if possible
-//TODO find a way to spy on the readbuffer until the word OK.
 export type AdminAction =
     | SetSerialPortsAction
     | SetSelectedSerialPortAction
@@ -144,7 +142,6 @@ export const selectSerialPort =
         }
 
 export async function sendData(gcode: string) {
-    // console.log(">>> ", normalizeGCode(gcode, {sendLineNumber: false}));
     store.dispatch(setSendingCommand(true))
 
     updateSerialHistory(normalizeGCode(gcode, {sendLineNumber: false}), true);
@@ -197,11 +194,9 @@ export async function connectToPort() {
         // await sendData("G29 S0");
         // const meshResponse = await waitForFirstResponse();
         // console.log(meshResponse)
-
         await getExistingMesh();
     } catch (e) {
         //TODO add toast notification of failure
-        console.log(e);
         store.dispatch(setConnectedToPort(false))
         store.dispatch(setConnectingToPort(false))
     }
@@ -243,15 +238,21 @@ async function listenToPort() {
     }
 }
 
-export async function waitForFirstResponse(expectedResponse = "", command?: string): Promise<string> {
-    //TODO implement timeout?
+export async function waitForFirstResponse(...expectedResponses: string[]): Promise<string> {
     store.dispatch(setAwaitingResponse(true));
     const printerResponse: string = await new Promise(function (resolve, reject) {
         messageEventTarget.on('message', (message: string) => {
-            if (expectedResponse == "" || message.startsWith(expectedResponse)) {
+            let messageContainsResponse = false;
+            for (const resp of expectedResponses) {
+                if (message.indexOf(resp) !== -1) {
+                    messageContainsResponse = true;
+                }
+            }
+
+            if (expectedResponses.length == 0 || messageContainsResponse) {
                 resolve(message);
             } else if (message.startsWith("Error:") || message.startsWith("Unknown command:")) {
-                //TODO resend data or alert the user?
+                //TODO Alert the user of the error with Toast.
                 console.log("Error: ", message);
             }
         });
@@ -271,14 +272,12 @@ function confirmConnection() {
 async function cancelReader() {
     await reader?.cancel();
     await readableStreamClosed?.catch(() => { //ignore the error
-        console.log("Here");
     })
     reader = null;
     readableStreamClosed = null;
 }
 
 async function closeWriter() {
-    console.log("Closing writer");
     await writer?.close();
     await writableStreamClosed;
 }
@@ -297,17 +296,14 @@ export async function disconnectFromPort() {
         await closeWriter();
         const serialPort = await getSelectedPort();
         await serialPort?.close();
-        //TODO actually determine if success.
     } catch (e) {
         resetApp();
-        console.log(e);
     }
 }
 
 export async function openYouTubeLink() {
     // shell.openExternal("http://www.youtube.com/c/modernhobbyist")
     // open("https://www.youtube.com/c/modernhobbyist", "_BLANK");
-    console.log("Here");
     window.electron.openLink("https://www.youtube.com/c/modernhobbyist");
 }
 
@@ -322,13 +318,7 @@ function resetApp() {
 export async function getSelectedPort() {
     try {
         const currSerialPort = store.getState().root.adminState.serialPort
-        const toReturn = currSerialPort ? currSerialPort : await navigator.serial.requestPort();
-
-        if (toReturn == null) {
-            console.log("Serial port is null");
-        }
-
-        return toReturn;
+        return currSerialPort ? currSerialPort : await navigator.serial.requestPort();
     } catch (ex) {
         console.log("Didn't connect", ex);
     }
