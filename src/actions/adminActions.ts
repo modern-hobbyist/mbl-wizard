@@ -192,9 +192,13 @@ export async function connectToPort() {
         await connectionResponse;
 
         //TODO confirm if printer can support mbl with similar to below
-        // await sendData("G29 S0");
-        // const meshResponse = await waitForFirstResponse();
-        // console.log(meshResponse)
+        const supportsMBL = await confirmMblSupport();
+
+        if (!supportsMBL) {
+            console.log("Printer doesn't support Manual Mesh Bed Leveling.");
+            return;
+        }
+
         await getExistingMesh();
     } catch (e) {
         //TODO add toast notification of failure
@@ -222,7 +226,6 @@ async function listenToPort() {
                 totalString = `${totalString}${value}`;
             }
             //Emits a message received event which can be waited for when needed.
-            console.log(totalString);
             updateSerialHistory(totalString, false);
             messageEventTarget.emit('message', totalString)
         }
@@ -264,6 +267,15 @@ export async function waitForFirstResponse(...expectedResponses: string[]): Prom
     return printerResponse;
 }
 
+async function confirmMblSupport(): Promise<boolean> {
+    //TODO this won't catch them all
+    //TODO improve this function to determine more accurately.
+    const printerResponsePromise = waitForFirstResponse("Measured points:", "bed leveling");
+    await sendData("G29");
+    const response = await printerResponsePromise;
+    console.log("Support: ", response);
+    return response.indexOf("Measured Points:") !== -1 || response.indexOf("Mesh bed leveling has no data.") !== -1;
+}
 
 function confirmConnection() {
     store.dispatch(setConnectedToPort(true))
