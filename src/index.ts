@@ -14,9 +14,7 @@ let selectedPort = "{}";
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const MONITOR_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
-declare const MONITOR_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -63,8 +61,10 @@ const createWindow = (): void => {
 
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        height: 600,
-        width: 900,
+        height: 775,
+        width: 1250,
+        minWidth: 900,
+        minHeight: 530,
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
             contextIsolation: true,
@@ -143,33 +143,6 @@ const createWindow = (): void => {
     });
 };
 
-let serialMonitor = null
-
-function openSerialMonitor(event: IpcMainEvent) {
-    if (serialMonitor) {
-        serialMonitor.focus()
-        return
-    }
-
-    serialMonitor = new BrowserWindow({
-        height: 600,
-        width: 900,
-        x: 100,
-        y: 100,
-        title: "Serial Monitor",
-        webPreferences: {
-            preload: MONITOR_WINDOW_PRELOAD_WEBPACK_ENTRY,
-            contextIsolation: true,
-        },
-    })
-
-    serialMonitor.loadURL(MONITOR_WINDOW_WEBPACK_ENTRY)
-
-    serialMonitor.on('closed', function () {
-        serialMonitor = null
-    })
-}
-
 function handleSetTitle(event: IpcMainEvent, title: string) {
     const webContents = event.sender
     const win = BrowserWindow.fromWebContents(webContents)
@@ -181,6 +154,10 @@ function handleSetSelectedPort(event: IpcMainEvent, newPort: string) {
     selectedPort = newPort;
 }
 
+function openLink(event: IpcMainEvent, url: string) {
+    require("electron").shell.openExternal(url);
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -190,8 +167,8 @@ app.whenReady().then(() => {
         .catch((err) => console.log('An error occurred: ', err));
 }).then(() => {
     ipcMain.on('set-title', handleSetTitle)
+    ipcMain.on('open-link', openLink)
     ipcMain.on('set-selected-port', handleSetSelectedPort)
-    ipcMain.on('open-monitor', openSerialMonitor)
     createWindow()
 });
 

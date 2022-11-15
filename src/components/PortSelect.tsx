@@ -12,8 +12,8 @@ export function PortSelect() {
     }
 
     return (
-        <FormControl fullWidth sx={{m: 1, minWidth: 120}} size="small">
-            <InputLabel id="demo-simple-select-label">Ports</InputLabel>
+        <FormControl fullWidth sx={{m: 1}} size="small">
+            <InputLabel id="demo-simple-select-label">Port</InputLabel>
             <Select
                 fullWidth
                 labelId="demo-simple-select-label"

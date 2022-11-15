@@ -18,7 +18,7 @@ export function ConnectButton() {
     return (
         <FormControl>
             <Button
-                sx={{m: 1, minWidth: 120}}
+                sx={{m: 1}}
                 onClick={() => {
                     connectedToPort ? dispatch(disconnectFromPort) : dispatch(connectToPort)
                 }}

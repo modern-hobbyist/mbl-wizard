@@ -8,7 +8,8 @@ import {
     SET_AWAITING_RESPONSE,
     SET_SELECTED_BAUD_RATE,
     SET_SELECTED_PORT,
-    SET_SENDING_COMMAND
+    SET_SENDING_COMMAND,
+    SET_SERIAL_HISTORY
 } from '../actions/adminActions';
 
 export interface AdminState {
@@ -20,6 +21,7 @@ export interface AdminState {
     readonly awaitingResponse: boolean;
     readonly serialPort: SerialPort;
     readonly selectedBaudRate: number;
+    readonly serialHistory: string;
 }
 
 const defaultState: AdminState = {
@@ -30,7 +32,8 @@ const defaultState: AdminState = {
     sendingCommand: false,
     awaitingResponse: false,
     serialPort: null,
-    selectedBaudRate: 256000
+    selectedBaudRate: 250000,
+    serialHistory: "[]"
 };
 
 export const adminReducer: Reducer<AdminState> = (
@@ -72,6 +75,11 @@ export const adminReducer: Reducer<AdminState> = (
             return {
                 ...state,
                 selectedBaudRate: action.value
+            };
+        case SET_SERIAL_HISTORY:
+            return {
+                ...state,
+                serialHistory: action.value
             };
         default:
             return state;
