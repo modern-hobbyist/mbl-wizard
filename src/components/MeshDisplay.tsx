@@ -13,7 +13,7 @@ export function MeshDisplay() {
     const updateMeshPoint = (value, col, row) => {
         dispatch(updateSpecificMeshPoint(col, row, value))
     };
-
+    
     // const [pointValue, setPointValue] = React.useState("");
     const delayedQuery = debounce((value, col, row) => updateMeshPoint(value, col, row), 1000);
     const handleUpdatedPoint = (e, col, row) => {
@@ -32,9 +32,9 @@ export function MeshDisplay() {
             colItems.push(
                 <Grid item xs={2} key={`item-${row}-${col}`}>
                     <TextField variant="outlined"
-                               size="small" defaultValue={meshData[row][col]} type="number"
+                               size="small" defaultValue={meshData[row][col]}
+                               key={`value-${row}-${col}-${meshData[row][col]}`} type="number"
                                onChange={(event) => {
-                                   // handleUpdatedPoint(event, col, row)
                                    handleUpdatedPoint(event, col, row);
                                }}
                                inputProps={{step: `${zChangeAmount}`}}

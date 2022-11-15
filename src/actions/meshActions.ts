@@ -110,6 +110,7 @@ export async function getExistingMesh() {
     await sendData(gCode);
     const currentMeshResponse = await printerMeshResponse;
     if (currentMeshResponse.indexOf("Measured points:") !== -1) {
+        console.log("Got existing mesh: ", currentMeshResponse);
         const parsedMesh = parseResponse(currentMeshResponse);
 
         const [xPoints, yPoints] = extractXYMeshPoints(parsedMesh[1]);
@@ -140,9 +141,14 @@ function interpretMeshData(parsedMesh: string[], xPoints: number, yPoints: numbe
     // 10:"X:0.00 Y:0.00 Z:0.00 E:0.00 Count X:0 Y:0 Z:0"
     // 11:"ok"
 
-
     const meshData = [];
-    const meshStartIndex = 5;
+    let meshStartIndex = 5;
+
+    parsedMesh.forEach((value, index) => {
+        if (value.indexOf("Measured points:") !== -1) {
+            meshStartIndex = index + 2;
+        }
+    });
 
     for (let i = meshStartIndex; i < meshStartIndex + xPoints; i++) {
         const row = parsedMesh[i].split(" ").slice(1);
@@ -246,7 +252,7 @@ function getEmptyMeshData(): number[] {
     for (let row = 0; row < meshYPoints; row++) {
         mesh[row] = [];
         for (let col = 0; col < meshXPoints; col++) {
-            mesh[row][col] = 0;
+            mesh[row][col] = 0.00;
         }
     }
     return mesh;
