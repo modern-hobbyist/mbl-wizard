@@ -1,16 +1,5 @@
 import React from 'react';
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Box,
-    Card,
-    CardContent,
-    Grid,
-    TextField,
-    Typography
-} from "@mui/material";
-import {ExpandMore} from "@mui/icons-material";
+import {Box, Card, CardContent, Grid, TextField, Typography} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../hooks";
 import {updateSpecificMeshPoint} from "../actions/meshActions";
 
@@ -21,6 +10,10 @@ export function MeshDisplay() {
     const meshData = useAppSelector(state => state.root.meshState.meshData)
     const zChangeAmount = useAppSelector(state => state.root.meshState.zChangeAmount)
 
+    const altMeshMessage = (
+        <Typography align="center" sx={{color: 'text.secondary'}}>No Mesh Data</Typography>
+    )
+
     //TODO update to actually use the meshData
     //TODO add ability to change individual points.
     //TODO add a warning that it can be dangerous to change points directly, make sure to double check before saving to printer.
@@ -30,9 +23,10 @@ export function MeshDisplay() {
         for (let col = 0; col < meshYPoints; col++) {
             colItems.push(
                 <Grid item xs={2} key={`item-${row}-${col}`}>
-                    <TextField variant="standard" defaultValue={meshData[row][col]} type="number"
+                    <TextField variant="outlined"
+                               size="small" defaultValue={meshData[row][col]} type="number"
                                onChange={(event) => {
-                                   dispatch(updateSpecificMeshPoint(row, col, parseFloat(event.target.value)))
+                                   dispatch(updateSpecificMeshPoint(col, row, parseFloat(event.target.value)))
                                }}
                                inputProps={{step: `${zChangeAmount}`}}
                     />
@@ -67,7 +61,7 @@ export function MeshDisplay() {
                         <Grid container columnSpacing={1} justifyContent="center" key={`titles`}>
                             {meshLabels}
                         </Grid>
-                        {meshDisplayItems}
+                        {meshDisplayItems.length > 0 ? meshDisplayItems : altMeshMessage}
                     </Box>
                 </CardContent>
             </React.Fragment>
@@ -76,19 +70,8 @@ export function MeshDisplay() {
 
 
     return (
-        <Accordion sx={{my: 2, mx: 1, minWidth: 120}}>
-            <AccordionSummary
-                expandIcon={<ExpandMore/>}
-                aria-controls="current-mesh-accordion"
-                id="current-mesh-accordion"
-            >
-                <Typography>Current Mesh</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Box sx={{minWidth: 275}}>
-                    {card}
-                </Box>
-            </AccordionDetails>
-        </Accordion>
+        <Box sx={{m: 1}}>
+            {card}
+        </Box>
     )
 }

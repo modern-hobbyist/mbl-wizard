@@ -200,19 +200,25 @@ export async function decreaseZHeight() {
     await adjustZHeight(`-${zAmount}`); //TODO add negative back in later
 }
 
+export async function saveConfiguration() {
+    //TODO send M500 to save settings
+    const printerResponsePromise = waitForFirstResponse();
+    await sendData(`M500`);
+
+    const printerResponse = await printerResponsePromise;
+    console.log(parseResponse(printerResponse));
+}
+
+
 async function adjustZHeight(zAmount: string) {
     let printerResponsePromise = waitForFirstResponse();
-
-    printerResponsePromise = waitForFirstResponse();
     await sendData(`G1 Z${zAmount}`);
-    console.log("Command sent");
 
     const printerResponse = await printerResponsePromise;
     console.log(parseResponse(printerResponse));
 
     printerResponsePromise = waitForFirstResponse();
     await sendData("G90");
-    console.log("Command sent");
 }
 
 export async function cancelMeshBedLeveling() {

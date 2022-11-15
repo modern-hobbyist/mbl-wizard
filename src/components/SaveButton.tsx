@@ -1,13 +1,13 @@
 import React from 'react';
 import {Button, FormControl} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../hooks";
-import {nextMeshPoint} from "../actions/meshActions";
+import {saveConfiguration} from "../actions/meshActions";
 
-export function NextButton() {
-    const creatingMesh = useAppSelector(state => state.root.meshState.creatingMesh)
+export function SaveButton() {
+    const selectedPort = useAppSelector(state => state.root.adminState.selectedPort)
+    const connectedToPort = useAppSelector(state => state.root.adminState.connectedToPort)
     const sendingCommand = useAppSelector(state => state.root.adminState.sendingCommand)
     const awaitingResponse = useAppSelector(state => state.root.adminState.awaitingResponse)
-    const lastMeshPoint = false;
     const dispatch = useAppDispatch()
 
     return (
@@ -15,11 +15,11 @@ export function NextButton() {
             <Button
                 sx={{m: 1, minWidth: 120}}
                 variant="contained"
-                color="primary"
-                disabled={!creatingMesh || sendingCommand || awaitingResponse}
+                color="success"
+                disabled={!connectedToPort || sendingCommand || awaitingResponse}
                 onClick={() => {
-                    dispatch(nextMeshPoint);
-                }}>{lastMeshPoint ? "Finish" : "Next"}</Button>
+                    dispatch(saveConfiguration);
+                }}>Save</Button>
         </FormControl>
     )
 }

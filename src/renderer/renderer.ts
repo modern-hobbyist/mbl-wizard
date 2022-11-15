@@ -38,7 +38,6 @@ declare global {
     }
 }
 
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
 window.electron.setTitle("MBL Wizard");
 
 window.electron.onPortList((event, value: string) => {
