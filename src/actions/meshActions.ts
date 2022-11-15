@@ -105,20 +105,26 @@ export type MeshAction =
     | SetZChangeAmountAction;
 
 export async function getExistingMesh() {
-    console.log("getting mesh data");
     const gCode = "G29 S0";
-    const printerMeshResponse = waitForFirstResponse("State: ", gCode);
+    const printerMeshResponse = waitForFirstResponse("Measured points:", "Mesh bed leveling has no data.");
     await sendData(gCode);
-    console.log("Fetched mesh data");
     const currentMeshResponse = await printerMeshResponse;
-    const parsedMesh = parseResponse(currentMeshResponse);
+    if (currentMeshResponse.indexOf("Measured points:") !== -1) {
+        console.log("Got existing mesh: ", currentMeshResponse);
+        const parsedMesh = parseResponse(currentMeshResponse);
 
-    const [xPoints, yPoints] = extractXYMeshPoints(parsedMesh[1]);
-    const meshData = interpretMeshData(parsedMesh, xPoints, yPoints);
+        const [xPoints, yPoints] = extractXYMeshPoints(parsedMesh[1]);
+        const meshData = interpretMeshData(parsedMesh, xPoints, yPoints);
 
-    store.dispatch(setMeshXPoints(xPoints));
-    store.dispatch(setMeshYPoints(yPoints));
-
+        store.dispatch(setMeshXPoints(xPoints));
+        store.dispatch(setMeshYPoints(yPoints));
+        store.dispatch(setMeshData(meshData));
+    } else {
+        //No mesh data
+        // store.dispatch(setMeshXPoints(0));
+        // store.dispatch(setMeshYPoints(0));
+        store.dispatch(setMeshData(getEmptyMeshData()));
+    }
 }
 
 function interpretMeshData(parsedMesh: string[], xPoints: number, yPoints: number) {
@@ -135,9 +141,14 @@ function interpretMeshData(parsedMesh: string[], xPoints: number, yPoints: numbe
     // 10:"X:0.00 Y:0.00 Z:0.00 E:0.00 Count X:0 Y:0 Z:0"
     // 11:"ok"
 
-
     const meshData = [];
-    const meshStartIndex = 5;
+    let meshStartIndex = 5;
+
+    parsedMesh.forEach((value, index) => {
+        if (value.indexOf("Measured points:") !== -1) {
+            meshStartIndex = index + 2;
+        }
+    });
 
     for (let i = meshStartIndex; i < meshStartIndex + xPoints; i++) {
         const row = parsedMesh[i].split(" ").slice(1);
@@ -147,7 +158,6 @@ function interpretMeshData(parsedMesh: string[], xPoints: number, yPoints: numbe
         }
     }
 
-    store.dispatch(setMeshData(meshData));
 
     return meshData;
 }
@@ -161,80 +171,71 @@ function extractXYMeshPoints(numXY: string): [number, number] {
 
 export async function startMeshBedLeveling() {
     //TODO parse mesh point count
-    console.log("Starting MBL!");
     store.dispatch(setCurrentMeshPoint(0));
     store.dispatch(setCreatingMesh(true));
+    store.dispatch(setMeshData(getEmptyMeshData()));
 
-    //TODO do I need to call get mesh here?
     const gCode = "G29 S1";
-    const printerResponsePromise = waitForFirstResponse("MBL G29 point", gCode);
+    const printerResponsePromise = waitForFirstResponse("MBL G29 point");
     await sendData(gCode);
     //Once it gets to point 1, it sends this: "MBL G29 point 1 of 25"
-    const firstPointResponse = await printerResponsePromise
-    console.log(parseResponse(firstPointResponse));
+    await printerResponsePromise
 }
 
 export async function nextMeshPoint() {
 
     //Set up the listener first, then send the data.
-    const printerResponsePromise = waitForFirstResponse("MBL G29 point");
+    let printerResponsePromise = waitForFirstResponse("MBL G29 point");
     await sendData("G29 S2");
-    const printerResponse = await printerResponsePromise;
-    console.log(parseResponse(printerResponse));
+    await printerResponsePromise;
 
-    // printerResponsePromise = waitForFirstResponse();
-    // await sendData("G29 S0");
-    // printerResponse = await printerResponsePromise
-    // console.log(parseResponse(printerResponse));
+
+    printerResponsePromise = waitForFirstResponse();
+    await sendData(`G0 Z0`);
+    await printerResponsePromise
+
+    await getExistingMesh();
 }
 
 export async function increaseZHeight() {
-    //TODO only perform if currently if creatingMesh
     const zAmount = store.getState().root.meshState.zChangeAmount;
     await adjustZHeight(`${zAmount}`);
 }
 
 export async function decreaseZHeight() {
-    //TODO only perform if currently if creatingMesh
     const zAmount = store.getState().root.meshState.zChangeAmount;
-    await adjustZHeight(`-${zAmount}`); //TODO add negative back in later
+    await adjustZHeight(`-${zAmount}`);
 }
 
 export async function saveConfiguration() {
-    //TODO send M500 to save settings
     const printerResponsePromise = waitForFirstResponse();
     await sendData(`M500`);
-
-    const printerResponse = await printerResponsePromise;
-    console.log(parseResponse(printerResponse));
+    await printerResponsePromise;
 }
 
 
 async function adjustZHeight(zAmount: string) {
+
     let printerResponsePromise = waitForFirstResponse();
+    await sendData("G91");
+    await printerResponsePromise;
+
+    printerResponsePromise = waitForFirstResponse();
     await sendData(`G1 Z${zAmount}`);
 
-    const printerResponse = await printerResponsePromise;
-    console.log(parseResponse(printerResponse));
+    await printerResponsePromise;
 
     printerResponsePromise = waitForFirstResponse();
     await sendData("G90");
+    await printerResponsePromise;
 }
 
 export async function cancelMeshBedLeveling() {
-    console.log("Cancelling MBL!");
     store.dispatch(setCurrentMeshPoint(0));
     store.dispatch(setCreatingMesh(false));
     store.dispatch(setAwaitingResponse(false))
-    //TODO reset mesh? delete current mesh progress?
-}
 
-/***
- * The goal of this function is just to build out a basic GCode sender, like a barebones Pronterface
- * @param gcode
- */
-export function sendGCode(gcode: string) {
-    console.log(gcode)
+    await getExistingMesh();
 }
 
 export async function resetMesh() {
@@ -243,11 +244,23 @@ export async function resetMesh() {
     store.dispatch(setMeshYPoints(0));
 }
 
+function getEmptyMeshData(): number[] {
+    const mesh = [];
+    const meshXPoints = store.getState().root.meshState.meshXPoints;
+    const meshYPoints = store.getState().root.meshState.meshYPoints
+
+    for (let row = 0; row < meshYPoints; row++) {
+        mesh[row] = [];
+        for (let col = 0; col < meshXPoints; col++) {
+            mesh[row][col] = 0.00;
+        }
+    }
+    return mesh;
+}
+
 export const updateSpecificMeshPoint =
     (xCoord: number, yCoord: number, value: number): ThunkAction<void, RootState, unknown, AnyAction> =>
         async () => {
-            //TODO handle the case for 5
-            console.log("X: ", xCoord, " Y: ", yCoord, " Val: ", value);
             const printerResponsePromise = waitForFirstResponse();
             await sendData(`G29 S3 I${xCoord} J${yCoord} Z${value}`);
 
@@ -257,5 +270,5 @@ export const updateSpecificMeshPoint =
                 await sendData(`G29 S3 X${xCoord + 1} Y${yCoord + 1} Z${value}`);
                 await printerResponsePromise;
             }
-            getExistingMesh();
+            await getExistingMesh();
         }

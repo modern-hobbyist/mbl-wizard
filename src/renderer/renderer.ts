@@ -41,8 +41,6 @@ declare global {
 window.electron.setTitle("MBL Wizard");
 
 window.electron.onPortList((event, value: string) => {
-    // console.log(event);
-    // //This passes the serial names from the main program to the UI, so I can create a list, then connect to the device I want.
-    // console.log("From Main: ", value);
+    //This passes the serial names from the main program to the UI, so I can create a list, then connect to the device I want.
     store.dispatch(setSerialPorts(value));
 });
