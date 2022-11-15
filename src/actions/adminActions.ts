@@ -172,11 +172,12 @@ export async function connectToPort() {
     try {
         const serialPort = await getSelectedPort();
         const connectionResponse = waitForFirstResponse("echo:SD card ok");
+
         await serialPort.open({
             bufferSize: 1600,
             // dataBits: 8,
             // flowControl: "hardware",
-            parity: "even",
+            // parity: "none",
             // stopBits: 1,
             baudRate: store.getState().root.adminState.selectedBaudRate
         });
@@ -221,7 +222,7 @@ async function listenToPort() {
                 totalString = `${totalString}${value}`;
             }
             //Emits a message received event which can be waited for when needed.
-            // console.log(totalString);
+            console.log(totalString);
             updateSerialHistory(totalString, false);
             messageEventTarget.emit('message', totalString)
         }

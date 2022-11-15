@@ -187,14 +187,17 @@ export async function nextMeshPoint() {
     //Set up the listener first, then send the data.
     let printerResponsePromise = waitForFirstResponse("MBL G29 point");
     await sendData("G29 S2");
-    await printerResponsePromise;
+    const response = await printerResponsePromise;
 
+    if (response.indexOf("Mesh probing done.") !== -1) {
+        //DONE MBL
+    } else {
+        printerResponsePromise = waitForFirstResponse();
+        await sendData(`G0 Z0`);
+        await printerResponsePromise
 
-    printerResponsePromise = waitForFirstResponse();
-    await sendData(`G0 Z0`);
-    await printerResponsePromise
-
-    await getExistingMesh();
+        await getExistingMesh();
+    }
 }
 
 export async function increaseZHeight() {
