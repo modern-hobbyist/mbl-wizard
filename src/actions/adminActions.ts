@@ -5,6 +5,7 @@ import {AnyAction} from "@reduxjs/toolkit";
 import EventTarget from 'events';
 import {getExistingMesh, resetMesh, setCreatingMesh, setCurrentMeshPoint} from "./meshActions";
 import {normalizeGCode} from "../utilities/utilities";
+import {showSnackbarMessage} from "./notificationActions";
 
 export const SERIAL_PORTS = 'SERIAL_PORTS';
 export const SET_SELECTED_PORT = 'SET_SELECTED_PORT';
@@ -124,6 +125,7 @@ export type AdminAction =
 export const updateBaudRate =
     (baudRate: number): ThunkAction<void, RootState, unknown, AnyAction> =>
         async () => {
+            // store.dispatch(showSnackbarMessage("Stinker", 'success'));
             if (store.getState().root.adminState.connectedToPort) {
                 await disconnectFromPort();
             }
@@ -270,6 +272,7 @@ export async function waitForFirstResponse(...expectedResponses: string[]): Prom
 async function confirmMblSupport(): Promise<boolean> {
     //TODO this won't catch them all
     //TODO improve this function to determine more accurately.
+    //GRBL responds with error:20
     const printerResponsePromise = waitForFirstResponse("Measured points:", "bed leveling");
     await sendData("G29");
     const response = await printerResponsePromise;
@@ -278,6 +281,7 @@ async function confirmMblSupport(): Promise<boolean> {
 }
 
 function confirmConnection() {
+    store.dispatch(showSnackbarMessage("Connected", 'success', 3000));
     store.dispatch(setConnectedToPort(true))
     store.dispatch(setConnectingToPort(false))
 }
@@ -309,7 +313,10 @@ export async function disconnectFromPort() {
         await closeWriter();
         const serialPort = await getSelectedPort();
         await serialPort?.close();
+        store.dispatch(showSnackbarMessage("Disconnected", 'info', 3000));
     } catch (e) {
+        //TODO improve error reporting.
+        store.dispatch(showSnackbarMessage(`Error: ${e}`, 'error', 10000));
         resetApp();
     }
 }

@@ -14,12 +14,14 @@ import {MeshDisplay} from "./MeshDisplay";
 import SerialMonitor from "./SerialMonitor";
 import CommandPrompt from "./CommandPrompt";
 import {SaveButton} from "./SaveButton";
+import NotificationSnackbar from "./NotificationSnackbar";
 
 export function Application() {
     const dispatch = useAppDispatch();
 
     return (
         <Box>
+            <NotificationSnackbar/>
             <Paper sx={{position: "fixed", top: 0, bottom: "100px", width: "100%"}}>
                 {/*<Paper variant="outlined">*/}
                 <Grid container columnSpacing={0} justifyContent="space-between" height="100%">
