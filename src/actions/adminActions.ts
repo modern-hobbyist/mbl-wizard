@@ -149,7 +149,7 @@ export async function getAvailablePorts() {
     try {
         return await navigator.serial.requestPort()
     } catch (ex) {
-        console.log("Didn't connect", ex);
+        store.dispatch(showSnackbarMessage("Failed to connect.", 'error', 6000));
     }
 }
 
@@ -189,10 +189,8 @@ export async function connectToPort() {
         //TODO confirm if printer can support mbl with similar to below
         const supportsMBL = await confirmMblSupport();
 
-        console.log("Support: ", supportsMBL);
-
         if (!supportsMBL) {
-            console.log("Printer doesn't support Manual Mesh Bed Leveling.");
+            store.dispatch(showSnackbarMessage("Printer doesn't support Manual Mesh Bed Leveling.", 'error', 6000));
             return;
         }
 
@@ -250,7 +248,6 @@ async function listenToPortAlt() {
                 // Allow the serial port to be closed later.
                 break;
             }
-            console.log(value);
             //Emits a message received event which can be waited for when needed.
             updateSerialHistory(value, false);
             messageEventTarget.emit('message', value)
@@ -319,6 +316,7 @@ export async function sendData(gcode: string) {
         await writer.write(normalizeGCode(gcode, {sendLineNumber: false}));
 
         writableStreamClosed.catch((reason) => {
+            store.dispatch(showSnackbarMessage("Error closing stream:", 'error', 6000));
             console.log("Error closing stream: ", reason);
         })
 
@@ -336,20 +334,16 @@ export async function waitForFirstResponse(...expectedResponses: string[]): Prom
         messageEventTarget.on('message', (message: string) => {
             let messageContainsResponse = false;
             for (const resp of expectedResponses) {
-                console.log("Checking: ", resp, " in ", message);
                 if (message.indexOf(resp) !== -1) {
                     messageContainsResponse = true;
                 }
             }
 
-            console.log(expectedResponses.length);
-
             if (expectedResponses.length == 0 || messageContainsResponse) {
-                console.log("resolving");
                 resolve(message);
             } else if (message.startsWith("Error:") || message.startsWith("Unknown command:")) {
                 //TODO Alert the user of the error with Toast.
-                console.log("Error: ", message);
+                store.dispatch(showSnackbarMessage(message, 'error', 6000));
             }
         });
     })
@@ -366,7 +360,6 @@ export async function waitWithTimeout(timeout: number): Promise<string> {
             resolve(message);
         });
         setTimeout(() => {
-            console.log("Timed Out");
             resolve("Timed Out");
         }, timeout);
     })
@@ -380,7 +373,6 @@ async function confirmMblSupport(): Promise<boolean> {
     //TODO this won't catch them all
     //TODO improve this function to determine more accurately.
     //GRBL responds with error:20
-    console.log("confirming Mbl support");
     const printerResponsePromise = waitForFirstResponse("LEVELING_DATA:");
     await sendData("M115");
     const response = await printerResponsePromise;
@@ -445,11 +437,11 @@ function resetApp() {
 export async function getSelectedPort() {
     try {
         if (globalSerialPort == null) {
-            console.log("Port is null for some reason...");
+            store.dispatch(showSnackbarMessage("An error occurred.", 'error', 6000));
         }
         return globalSerialPort;
     } catch (ex) {
-        console.log("Didn't connect", ex);
+        store.dispatch(showSnackbarMessage("Failed to connect.", 'error', 6000));
     }
 }
 

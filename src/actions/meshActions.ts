@@ -109,7 +109,6 @@ export async function getExistingMesh() {
     const printerMeshResponse = waitForFirstResponse("Measured points:", "Mesh bed leveling has no data.", "Mesh Bed Leveling");
     await sendData(gCode);
     const currentMeshResponse = await printerMeshResponse;
-    console.log("Mesh response: ", currentMeshResponse);
     if (currentMeshResponse.indexOf("Measured points:") !== -1) {
         const parsedMesh = parseResponse(currentMeshResponse);
 
@@ -212,8 +211,8 @@ export async function nextMeshPoint() {
     const currMeshPoint = store.getState().root.meshState.currentMeshPoint;
 
 
-    if (response.indexOf("MBL G29 point -1") !== -1 || currMeshPoint > numMeshPoints) {
-        console.log("Done mbl");
+    // if (response.indexOf("MBL G29 point -1") !== -1 || currMeshPoint > numMeshPoints) {
+    if (response.indexOf("MBL G29 point -1") !== -1) {
         store.dispatch(setCurrentMeshPoint(1));
         store.dispatch(setCreatingMesh(false));
         //DONE MBL
