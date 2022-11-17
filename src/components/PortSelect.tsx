@@ -1,6 +1,6 @@
 import React from 'react';
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
-import {getSelectedPort, selectSerialPort} from "../actions/adminActions";
+import {getAvailablePorts, selectSerialPort} from "../actions/adminActions";
 import {useAppDispatch, useAppSelector} from "../hooks";
 
 export function PortSelect() {
@@ -8,7 +8,7 @@ export function PortSelect() {
     const availablePorts = JSON.parse(useAppSelector(state => state.root.adminState.serialPorts));
 
     const handleSelectClick = async (e: React.MouseEvent) => {
-        dispatch(getSelectedPort)
+        dispatch(getAvailablePorts)
     }
 
     return (

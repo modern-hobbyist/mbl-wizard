@@ -2,6 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Usage
+
+* Add note about soft endstop (Use M211 S0 to allow printer to go below z0)
+* Don't forget to add M501 & M420 S1 to your start gcode to enable
+* Make sure to get the correct baud rate
+* Only work on printers with manual mesh bed leveling installed and enabled.
+
 # Languages / Frameworks
 
 This project uses the following frameworks and languages. I'll admit, this is probably over the top for the intended

@@ -20,6 +20,7 @@ let reader: ReadableStreamDefaultReader;
 let readableStreamClosed: Promise<void>;
 let writableStreamClosed: Promise<void>;
 let writer: WritableStreamDefaultWriter;
+let globalSerialPort: SerialPort;
 
 class MessageEventTarget extends EventTarget {
 }
@@ -143,28 +144,13 @@ export const selectSerialPort =
             store.dispatch(setSelectedSerialPort(selectedPort));
         }
 
-export async function sendData(gcode: string) {
-    store.dispatch(setSendingCommand(true))
 
-    updateSerialHistory(normalizeGCode(gcode, {sendLineNumber: false}), true);
-
-    const serialPort = await getSelectedPort();
-    const textEncoder = new TextEncoderStream();
-    const writableStreamClosed = textEncoder.readable.pipeTo(serialPort.writable);
-
-    const writer = textEncoder.writable.getWriter();
-
-    await writer.ready
-
-    await writer.write(normalizeGCode(gcode, {sendLineNumber: false}));
-
-    writableStreamClosed.catch((reason) => {
-        console.log("Error closing stream: ", reason);
-    })
-
-    await writer.close();
-
-    store.dispatch(setSendingCommand(false))
+export async function getAvailablePorts() {
+    try {
+        return await navigator.serial.requestPort()
+    } catch (ex) {
+        console.log("Didn't connect", ex);
+    }
 }
 
 export async function connectToPort() {
@@ -172,8 +158,11 @@ export async function connectToPort() {
     store.dispatch(setConnectingToPort(true))
 
     try {
-        const serialPort = await getSelectedPort();
-        const connectionResponse = waitForFirstResponse("echo:SD card ok");
+        const serialPort = await getAvailablePorts();
+
+        globalSerialPort = serialPort;
+
+        const connectionResponse = waitWithTimeout(2000);
 
         await serialPort.open({
             bufferSize: 1600,
@@ -184,17 +173,23 @@ export async function connectToPort() {
             baudRate: store.getState().root.adminState.selectedBaudRate
         });
 
-        confirmConnection();
-
         serialPort.addEventListener('disconnect', () => {
             disconnectFromPort();
         });
 
         listenToPort();
+
+        // returns a race between timeout and the passed promise
         await connectionResponse;
+
+        Promise.resolve(connectionResponse);
+
+        confirmConnection();
 
         //TODO confirm if printer can support mbl with similar to below
         const supportsMBL = await confirmMblSupport();
+
+        console.log("Support: ", supportsMBL);
 
         if (!supportsMBL) {
             console.log("Printer doesn't support Manual Mesh Bed Leveling.");
@@ -206,6 +201,70 @@ export async function connectToPort() {
         //TODO add toast notification of failure
         store.dispatch(setConnectedToPort(false))
         store.dispatch(setConnectingToPort(false))
+    }
+}
+
+class LineBreakTransformer {
+    private chunks: string;
+
+    constructor() {
+        // A container for holding stream data until a new line.
+        this.chunks = "";
+    }
+
+    transform(chunk, controller) {
+        // Append new chunks to existing chunks.
+        this.chunks += chunk;
+
+        //TODO is there a better transformer than a line break?
+        if (chunk.endsWith("\n")) {
+            // For each line breaks in chunks, send the parsed lines out.
+            // const lines = this.chunks.split("\n");
+            // this.chunks = lines.pop();
+            // lines.forEach((line) => controller.enqueue(line));
+
+            //OR just lump it all together until it ends with a new line?
+            controller.enqueue(this.chunks);
+        }
+    }
+
+    flush(controller) {
+        // When the stream is closed, flush any remaining chunks out.
+        controller.enqueue(this.chunks);
+    }
+}
+
+async function listenToPortAlt() {
+    const serialPort = await getSelectedPort();
+    const textDecoder = new TextDecoderStream();
+    readableStreamClosed = serialPort.readable.pipeTo(textDecoder.writable);
+    reader = textDecoder.readable
+        .pipeThrough(new TransformStream(new LineBreakTransformer()))
+        .getReader();
+
+    try {
+        while (true) {
+            // Listen to data coming from the serial device.
+            const {value, done} = await reader.read();
+            if (done) {
+                // Allow the serial port to be closed later.
+                break;
+            }
+            console.log(value);
+            //Emits a message received event which can be waited for when needed.
+            updateSerialHistory(value, false);
+            messageEventTarget.emit('message', value)
+        }
+    } catch (e) {
+        /*
+            Since the readable stream is stays open until we disconnect (or the printer is disconnected)
+            I throw an error to exit the loop, and that error is caught here.
+            I don't really need to do anything with this caught error, it just doesn't need to be reported
+         */
+    }
+
+    if (!reader.closed) {
+        reader.releaseLock();
     }
 }
 
@@ -223,7 +282,6 @@ async function listenToPort() {
                 if (done) {
                     // Allow the serial port to be closed later.
                     throw new Error('Serial port closed');
-                    break;
                 }
                 totalString = `${totalString}${value}`;
             }
@@ -244,18 +302,50 @@ async function listenToPort() {
     }
 }
 
+export async function sendData(gcode: string) {
+    try {
+        store.dispatch(setSendingCommand(true))
+
+        updateSerialHistory(normalizeGCode(gcode, {sendLineNumber: false}), true);
+
+        const serialPort = await getSelectedPort();
+        const textEncoder = new TextEncoderStream();
+        const writableStreamClosed = textEncoder.readable.pipeTo(serialPort.writable);
+
+        const writer = textEncoder.writable.getWriter();
+
+        await writer.ready
+
+        await writer.write(normalizeGCode(gcode, {sendLineNumber: false}));
+
+        writableStreamClosed.catch((reason) => {
+            console.log("Error closing stream: ", reason);
+        })
+
+        await writer.close();
+
+        store.dispatch(setSendingCommand(false))
+    } catch (e) {
+
+    }
+}
+
 export async function waitForFirstResponse(...expectedResponses: string[]): Promise<string> {
     store.dispatch(setAwaitingResponse(true));
     const printerResponse: string = await new Promise(function (resolve, reject) {
         messageEventTarget.on('message', (message: string) => {
             let messageContainsResponse = false;
             for (const resp of expectedResponses) {
+                console.log("Checking: ", resp, " in ", message);
                 if (message.indexOf(resp) !== -1) {
                     messageContainsResponse = true;
                 }
             }
 
+            console.log(expectedResponses.length);
+
             if (expectedResponses.length == 0 || messageContainsResponse) {
+                console.log("resolving");
                 resolve(message);
             } else if (message.startsWith("Error:") || message.startsWith("Unknown command:")) {
                 //TODO Alert the user of the error with Toast.
@@ -269,15 +359,32 @@ export async function waitForFirstResponse(...expectedResponses: string[]): Prom
     return printerResponse;
 }
 
+export async function waitWithTimeout(timeout: number): Promise<string> {
+    store.dispatch(setAwaitingResponse(true));
+    const printerResponse: string = await new Promise(function (resolve, reject) {
+        messageEventTarget.on('message', (message: string) => {
+            resolve(message);
+        });
+        setTimeout(() => {
+            console.log("Timed Out");
+            resolve("Timed Out");
+        }, timeout);
+    })
+
+    messageEventTarget.removeAllListeners();
+    store.dispatch(setAwaitingResponse(false));
+    return printerResponse;
+}
+
 async function confirmMblSupport(): Promise<boolean> {
     //TODO this won't catch them all
     //TODO improve this function to determine more accurately.
     //GRBL responds with error:20
-    const printerResponsePromise = waitForFirstResponse("Measured points:", "bed leveling");
-    await sendData("G29");
+    console.log("confirming Mbl support");
+    const printerResponsePromise = waitForFirstResponse("LEVELING_DATA:");
+    await sendData("M115");
     const response = await printerResponsePromise;
-    console.log("Support: ", response);
-    return response.indexOf("Measured Points:") !== -1 || response.indexOf("Mesh bed leveling has no data.") !== -1;
+    return response.indexOf("LEVELING_DATA:1") !== -1;
 }
 
 function confirmConnection() {
@@ -337,8 +444,10 @@ function resetApp() {
 
 export async function getSelectedPort() {
     try {
-        const currSerialPort = store.getState().root.adminState.serialPort
-        return currSerialPort ? currSerialPort : await navigator.serial.requestPort();
+        if (globalSerialPort == null) {
+            console.log("Port is null for some reason...");
+        }
+        return globalSerialPort;
     } catch (ex) {
         console.log("Didn't connect", ex);
     }
