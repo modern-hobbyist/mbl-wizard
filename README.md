@@ -20,6 +20,7 @@ The following are based on Marlin bugfix-2.1.x
 
 * [Anycubic i3 Mega (With TMC2208 drivers)](https://github.com/modern-hobbyist/Marlin-2.1.x-Anycubic-i3-Mega)
 * [Ender 3 Pro (With V4.2.2 Board)](https://github.com/modern-hobbyist/Marlin-2.1.x-Ender-3-Pro)
+* [Newereal M18 S (With Robin Nano V1.2 Board)](https://github.com/modern-hobbyist/Marlin-2.1.x-Newereal-M18-S)
 
 # Requirements
 
