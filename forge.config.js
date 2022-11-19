@@ -23,7 +23,7 @@ module.exports = {
             "name": "@electron-forge/maker-rpm",
             "config": {
                 "options": {
-                    "icon": './src/media/mbl-wizard'
+                    "icon": './src/media/mbl-wizard.png'
                 }
             }
         },
