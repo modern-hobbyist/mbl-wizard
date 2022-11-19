@@ -68,6 +68,7 @@ const createWindow = (): void => {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
             contextIsolation: true,
         },
+        icon: './media/mbl-wizard.png',
     });
 
     // and load the index.html of the app.

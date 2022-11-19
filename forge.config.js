@@ -1,24 +1,39 @@
 module.exports = {
-    "packagerConfig": {},
+    "packagerConfig": {
+        "icon": './src/media/mbl-wizard'
+    },
     "makers": [
         {
             "name": "@electron-forge/maker-squirrel",
             "config": {
-                "name": "mbl-wizard"
+                "name": "mbl-wizard",
+                "iconUrl": 'https://github.com/modern-hobbyist/mbl-wizard/blob/master/src/media/mbl-wizard.ico',
+                "setupIcon": './src/media/mbl-wizard.ico'
             }
         },
         {
             "name": "@electron-forge/maker-deb",
-            "config": {}
+            "config": {
+                "options": {
+                    "icon": './src/media/mbl-wizard.png'
+                }
+            }
         },
         {
             "name": "@electron-forge/maker-rpm",
-            "config": {}
+            "config": {
+                "options": {
+                    "icon": './src/media/mbl-wizard.png'
+                }
+            }
         },
         {
             "name": "@electron-forge/maker-dmg",
             "config": {
-                "format": "ULFO"
+                "format": "ULFO",
+                "options": {
+                    "icon": './src/media/mbl-wizard'
+                }
             },
             "platforms": [
                 "darwin"
