@@ -7,14 +7,15 @@ module.exports = {
             "name": "@electron-forge/maker-squirrel",
             "config": {
                 "name": "mbl-wizard",
-                "setupIcon": './src/media/mbl-wizard'
+                "iconUrl": 'https://github.com/modern-hobbyist/mbl-wizard/blob/master/src/media/mbl-wizard.ico',
+                "setupIcon": './src/media/mbl-wizard.ico'
             }
         },
         {
             "name": "@electron-forge/maker-deb",
             "config": {
                 "options": {
-                    "icon": './src/media/mbl-wizard'
+                    "icon": './src/media/mbl-wizard.png'
                 }
             }
         },
